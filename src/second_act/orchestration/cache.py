@@ -13,20 +13,23 @@ import json
 import os
 from pathlib import Path
 
+from pydantic import BaseModel
+
 from second_act.schema.briefing import Briefing
 from second_act.state.match_state import MatchState
 
-PROMPT_VERSION = "halftime-v3"
+PROMPT_VERSION = "v4"
 
 
-def briefing_key(state: MatchState, model: str, effort: str | None) -> str:
-    """Stable key for the briefing of this match state with this model configuration."""
+def briefing_key(state: MatchState, model: str, effort: str | None, kind: str = "halftime") -> str:
+    """Stable key for the briefing (or recap) of this match state and model configuration."""
     digest = hashlib.sha256()
-    for part in (PROMPT_VERSION, model, effort or "", state.meta.match_id):
+    for part in (PROMPT_VERSION, kind, model, effort or "", state.meta.match_id):
         digest.update(part.encode() + b"\0")
     for event in state.events:
         digest.update(event.model_dump_json(exclude_none=True).encode() + b"\n")
-    return f"{state.meta.match_id}-{digest.hexdigest()[:16]}"
+    prefix = state.meta.match_id if kind == "halftime" else f"{state.meta.match_id}-{kind}"
+    return f"{prefix}-{digest.hexdigest()[:16]}"
 
 
 class BriefingCache:
@@ -40,17 +43,17 @@ class BriefingCache:
     def _path(self, key: str) -> Path:
         return self.directory / f"{key}.json"
 
-    def get(self, key: str) -> Briefing | None:
-        """The cached briefing for ``key``, if any (an unreadable file counts as a miss)."""
+    def get(self, key: str, model: type[BaseModel] = Briefing):
+        """The cached output for ``key``, if any (an unreadable file counts as a miss)."""
         path = self._path(key)
         if not path.exists():
             return None
         try:
-            return Briefing.model_validate(json.loads(path.read_text())["briefing"])
+            return model.model_validate(json.loads(path.read_text())["briefing"])
         except (ValueError, KeyError):
             return None
 
-    def put(self, key: str, briefing: Briefing, summary: dict | None = None) -> Path:
+    def put(self, key: str, briefing: BaseModel, summary: dict | None = None) -> Path:
         """Store a verified briefing (and how it was produced) under ``key``."""
         self.directory.mkdir(parents=True, exist_ok=True)
         path = self._path(key)

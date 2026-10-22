@@ -17,6 +17,8 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from second_act.analytics.signals import SignalSet, make_id
 from second_act.analytics.windows import WINDOWS_PER_PERIOD
+from second_act.i18n.catalog import Audience, Chan, Language, Num
+from second_act.i18n.phrases import Phrase
 from second_act.schema.briefing import BriefingDraft, Point, TeamRead
 from second_act.schema.metadata import MatchMetadata
 from second_act.schema.predictions import Prediction
@@ -24,6 +26,8 @@ from second_act.schema.predictions import Prediction
 EVALUATE_AFTER = 65
 CHANNELS = ("left", "centre", "right")
 FLANK_FACING = {"left": "right", "centre": "central", "right": "left"}
+# The defending side that faces an attacking channel (attacking left meets the right).
+FLANK_SIDE = {"left": "right", "centre": "centre", "right": "left"}
 
 METRIC_NOTES = {
     "possession": "share of on-ball events (pct); with a *_third qualifier, share in that zone",
@@ -127,6 +131,65 @@ def _fmt(value: float) -> str:
 
 
 # ----- template briefing ------------------------------------------------------
+# The rules produce phrases (catalogue key + parameters) with their evidence, so the
+# presenter can render every audience and language; the briefing itself is the
+# English analyst rendering.
+
+
+@dataclass
+class TemplatePoint:
+    """A template claim: what to say, in any variant, and what supports it."""
+
+    phrase: Phrase
+    evidence: list[str]
+
+    def point(self, audience: Audience = "analyst", language: Language = "en") -> Point:
+        return Point(text=self.phrase.render(audience, language), evidence=self.evidence)
+
+
+@dataclass
+class TemplatePrediction:
+    """A template prediction with its claim as a phrase."""
+
+    phrase: Phrase
+    prediction: Prediction
+
+
+@dataclass
+class TemplateTeam:
+    team: str
+    working: list[TemplatePoint]
+    not_working: list[TemplatePoint]
+    predictions: list[TemplatePrediction]
+
+
+@dataclass
+class TemplateBriefing:
+    """The template briefing as phrases; ``render`` gives one variant."""
+
+    headline: Phrase
+    headline_evidence: list[str]
+    teams: list[TemplateTeam]
+
+    def render(self, audience: Audience = "analyst", language: Language = "en") -> BriefingDraft:
+        return BriefingDraft(
+            headline=self.headline.render(audience, language),
+            headline_evidence=self.headline_evidence,
+            teams=[
+                TeamRead(
+                    team=t.team,
+                    working=[p.point(audience, language) for p in t.working],
+                    not_working=[p.point(audience, language) for p in t.not_working],
+                    predictions=[
+                        p.prediction.model_copy(
+                            update={"claim": p.phrase.render(audience, language)}
+                        )
+                        for p in t.predictions
+                    ],
+                )
+                for t in self.teams
+            ],
+        )
 
 
 def _top_channel(c: _Ctx, team: str) -> tuple[str, float]:
@@ -135,15 +198,11 @@ def _top_channel(c: _Ctx, team: str) -> tuple[str, float]:
     return best, shares[best]
 
 
-def _working(c: _Ctx, t: str, o: str) -> list[Point]:
-    tn, on = c.name(t), c.name(o)
-    out: list[Point] = []
-    hr_t, hr_o, ppda_t, ppda_o = (
-        c.v("high_regains", t),
-        c.v("high_regains", o),
-        c.v("ppda", t),
-        c.v("ppda", o),
-    )
+def _working(c: _Ctx, t: str, o: str) -> list[TemplatePoint]:
+    names = {"tn": c.name(t), "on": c.name(o)}
+    out: list[TemplatePoint] = []
+    hr_t, hr_o = c.v("high_regains", t), c.v("high_regains", o)
+    ppda_t, ppda_o = c.v("ppda", t), c.v("ppda", o)
     if (
         c.has("ppda", t)
         and c.has("ppda", o)
@@ -151,21 +210,29 @@ def _working(c: _Ctx, t: str, o: str) -> list[Point]:
         and hr_t >= 2 * max(hr_o, 1)
     ):
         out.append(
-            Point(
-                text=f"{tn}'s press is forcing mistakes: {_fmt(hr_t)} ball wins in the final third "
-                f"and a PPDA of {_fmt(ppda_t)}, against {_fmt(ppda_o)} for {on}.",
-                evidence=[c.sid("high_regains", t), c.sid("ppda", t), c.sid("ppda", o)],
+            TemplatePoint(
+                Phrase(
+                    "w_press",
+                    {**names, "hr": Num(hr_t), "ppda": Num(ppda_t), "ppda_o": Num(ppda_o)},
+                ),
+                [c.sid("high_regains", t), c.sid("ppda", t), c.sid("ppda", o)],
             )
         )
     channel, share = _top_channel(c, t)
     if share >= 50:
-        entries = _fmt(c.v("channel_entries", t, channel))
-        total = _fmt(c.v("final_third_entries", t))
         out.append(
-            Point(
-                text=f"{tn} are attacking down the {channel}: {entries} of their {total} "
-                f"final-third entries ({_fmt(share)}%) come through that channel.",
-                evidence=[
+            TemplatePoint(
+                Phrase(
+                    "w_channel",
+                    {
+                        **names,
+                        "ch": Chan(channel),
+                        "n": Num(c.v("channel_entries", t, channel)),
+                        "total": Num(c.v("final_third_entries", t)),
+                        "share": Num(share),
+                    },
+                ),
+                [
                     c.sid("channel_entries", t, channel),
                     c.sid("final_third_entries", t),
                     c.sid("channel_share", t, channel),
@@ -174,81 +241,74 @@ def _working(c: _Ctx, t: str, o: str) -> list[Point]:
         )
     if c.v("field_tilt", t) >= 65:
         out.append(
-            Point(
-                text=f"{tn} have pinned {on} back, playing {_fmt(c.v('field_tilt', t))}% of the "
-                f"final-third passes.",
-                evidence=[c.sid("field_tilt", t)],
+            TemplatePoint(
+                Phrase("w_tilt", {**names, "tilt": Num(c.v("field_tilt", t))}),
+                [c.sid("field_tilt", t)],
             )
         )
     xg_t, xg_o = c.v("xg", t), c.v("xg", o)
     if xg_t >= 0.5 and xg_t >= 2 * xg_o:
         out.append(
-            Point(
-                text=f"{tn} have created {_fmt(xg_t)} xG to {on}'s {_fmt(xg_o)}.",
-                evidence=[c.sid("xg", t), c.sid("xg", o)],
+            TemplatePoint(
+                Phrase("w_xg", {**names, "xg": Num(xg_t), "xg_o": Num(xg_o)}),
+                [c.sid("xg", t), c.sid("xg", o)],
             )
         )
     if xg_o < 0.8 and xg_o < xg_t * 2:
         out.append(
-            Point(
-                text=f"{tn} have kept {on} quiet, allowing {_fmt(c.v('shots', o))} shots worth "
-                f"{_fmt(xg_o)} xG.",
-                evidence=[c.sid("shots", o), c.sid("xg", o)],
+            TemplatePoint(
+                Phrase("w_quiet", {**names, "shots": Num(c.v("shots", o)), "xg_o": Num(xg_o)}),
+                [c.sid("shots", o), c.sid("xg", o)],
             )
         )
     if c.v("possession", t) >= 55:
         out.append(
-            Point(
-                text=f"{tn} have controlled the ball with {_fmt(c.v('possession', t))}% "
-                f"possession.",
-                evidence=[c.sid("possession", t)],
+            TemplatePoint(
+                Phrase("w_possession", {**names, "poss": Num(c.v("possession", t))}),
+                [c.sid("possession", t)],
             )
         )
     if not out:
         out.append(
-            Point(
-                text=f"{tn} have completed {_fmt(c.v('pass_completion', t))}% of their passes.",
-                evidence=[c.sid("pass_completion", t)],
+            TemplatePoint(
+                Phrase("w_completion", {**names, "pc": Num(c.v("pass_completion", t))}),
+                [c.sid("pass_completion", t)],
             )
         )
     return out[:3]
 
 
-def _not_working(c: _Ctx, t: str, o: str) -> list[Point]:
-    tn, on = c.name(t), c.name(o)
-    out: list[Point] = []
+def _not_working(c: _Ctx, t: str, o: str) -> list[TemplatePoint]:
+    names = {"tn": c.name(t), "on": c.name(o)}
+    out: list[TemplatePoint] = []
     hr_t, hr_o = c.v("high_regains", t), c.v("high_regains", o)
     if hr_o >= 8 and hr_o >= 2 * max(hr_t, 1):
         out.append(
-            Point(
-                text=f"{tn} keep losing the ball in their own third: {on} have won it there "
-                f"{_fmt(hr_o)} times.",
-                evidence=[c.sid("high_regains", o)],
+            TemplatePoint(
+                Phrase("n_own_third", {**names, "hr_o": Num(hr_o)}), [c.sid("high_regains", o)]
             )
         )
     th_t, th_o = c.v("turnover_height", t), c.v("turnover_height", o)
     if th_t <= th_o - 15:
         out.append(
-            Point(
-                text=f"{tn} only win the ball back {_fmt(th_t)} m from their own goal on average, "
-                f"against {_fmt(th_o)} m for {on}.",
-                evidence=[c.sid("turnover_height", t), c.sid("turnover_height", o)],
+            TemplatePoint(
+                Phrase("n_deep", {**names, "th": Num(th_t), "th_o": Num(th_o)}),
+                [c.sid("turnover_height", t), c.sid("turnover_height", o)],
             )
         )
     xg_t, goals_t = c.v("xg", t), c.v("goals", t)
     if xg_t < 0.5:
         out.append(
-            Point(
-                text=f"{tn} have created little: {_fmt(c.v('shots', t))} shots worth "
-                f"{_fmt(xg_t)} xG.",
-                evidence=[c.sid("shots", t), c.sid("xg", t)],
+            TemplatePoint(
+                Phrase("n_little", {**names, "shots": Num(c.v("shots", t)), "xg": Num(xg_t)}),
+                [c.sid("shots", t), c.sid("xg", t)],
             )
         )
     elif xg_t - goals_t >= 0.7:
         out.append(
-            Point(
-                text=f"{tn} have scored {_fmt(goals_t)} from {_fmt(xg_t)} xG.",
-                evidence=[c.sid("goals", t), c.sid("xg", t)],
+            TemplatePoint(
+                Phrase("n_finishing", {**names, "g": Num(goals_t), "xg": Num(xg_t)}),
+                [c.sid("goals", t), c.sid("xg", t)],
             )
         )
     channel, share = _top_channel(c, t)
@@ -257,67 +317,77 @@ def _not_working(c: _Ctx, t: str, o: str) -> list[Point]:
             (ch for ch in CHANNELS if ch != channel), key=lambda ch: c.v("channel_share", t, ch)
         )
         out.append(
-            Point(
-                text=f"{tn} have barely used the {weakest}: "
-                f"{_fmt(c.v('channel_share', t, weakest))}% of their final-third entries.",
-                evidence=[c.sid("channel_share", t, weakest)],
+            TemplatePoint(
+                Phrase(
+                    "n_unused",
+                    {**names, "ch": Chan(weakest), "share": Num(c.v("channel_share", t, weakest))},
+                ),
+                [c.sid("channel_share", t, weakest)],
             )
         )
     if c.v("turnovers_per_min", t) > c.v("turnovers_per_min", o):
         out.append(
-            Point(
-                text=f"{tn} are giving the ball away in open play "
-                f"{_fmt(c.v('turnovers_per_min', t))} times a minute, more often than {on}.",
-                evidence=[c.sid("turnovers_per_min", t), c.sid("turnovers_per_min", o)],
+            TemplatePoint(
+                Phrase("n_turnovers", {**names, "tpm": Num(c.v("turnovers_per_min", t))}),
+                [c.sid("turnovers_per_min", t), c.sid("turnovers_per_min", o)],
             )
         )
     if not out:
         out.append(
-            Point(
-                text=f"{tn}'s control index is {_fmt(c.v('control_index', t))}, against "
-                f"{_fmt(c.v('control_index', o))} for {on}.",
-                evidence=[c.sid("control_index", t), c.sid("control_index", o)],
+            TemplatePoint(
+                Phrase(
+                    "n_control",
+                    {
+                        **names,
+                        "ci": Num(c.v("control_index", t)),
+                        "ci_o": Num(c.v("control_index", o)),
+                    },
+                ),
+                [c.sid("control_index", t), c.sid("control_index", o)],
             )
         )
     return out[:3]
 
 
-def _predictions(c: _Ctx, t: str, o: str) -> list[Prediction]:
-    tn, on = c.name(t), c.name(o)
-    specs: list[dict] = []
+def _predictions(c: _Ctx, t: str, o: str) -> list[TemplatePrediction]:
+    from second_act.agents.verifier import baseline_problem
+
+    names = {"tn": c.name(t), "on": c.name(o)}
+    specs: list[tuple[Phrase, dict]] = []
     o_channel, o_share = _top_channel(c, o)
     if o_share >= 45:
+        key = "p_block_centre" if o_channel == "centre" else "p_block"
         specs.append(
-            dict(
-                claim=(
-                    f"{tn} crowd the middle to cut {on}'s central entries"
-                    if o_channel == "centre"
-                    else f"{tn} reinforce their {FLANK_FACING[o_channel]} side to cut {on}'s "
-                    f"{o_channel}-channel entries"
+            (
+                Phrase(
+                    key, {**names, "ch": Chan(o_channel), "chflank": Chan(FLANK_SIDE[o_channel])}
                 ),
-                metric="channel_entries",
-                subject_team=o,
-                scope={"channel": o_channel},
-                direction="decrease",
-                threshold_pct=30,
-                evidence=[
-                    c.sid("channel_share", o, o_channel),
-                    c.sid("channel_entries", o, o_channel),
-                ],
+                dict(
+                    metric="channel_entries",
+                    subject_team=o,
+                    scope={"channel": o_channel},
+                    direction="decrease",
+                    threshold_pct=30,
+                    evidence=[
+                        c.sid("channel_share", o, o_channel),
+                        c.sid("channel_entries", o, o_channel),
+                    ],
+                ),
             )
         )
     hr_t, hr_o = c.v("high_regains", t), c.v("high_regains", o)
     if hr_o >= 8 and hr_o >= 2 * max(hr_t, 1):
         specs.append(
-            dict(
-                claim=f"{tn} drop a midfielder deeper to beat the press, cutting how often "
-                f"{on} win the ball in {tn}'s third",
-                metric="high_regains",
-                subject_team=o,
-                scope={},
-                direction="decrease",
-                threshold_pct=30,
-                evidence=[c.sid("high_regains", o)],
+            (
+                Phrase("p_pivot", names),
+                dict(
+                    metric="high_regains",
+                    subject_team=o,
+                    scope={},
+                    direction="decrease",
+                    threshold_pct=30,
+                    evidence=[c.sid("high_regains", o)],
+                ),
             )
         )
     t_channel, t_share = _top_channel(c, t)
@@ -325,125 +395,145 @@ def _predictions(c: _Ctx, t: str, o: str) -> list[Prediction]:
         alt = min(
             (ch for ch in CHANNELS if ch != t_channel), key=lambda ch: c.v("channel_share", t, ch)
         )
-        if c.signals.window_values("channel_entries", t, alt, 1):
-            specs.append(
+        specs.append(
+            (
+                Phrase("p_switch", {**names, "ch": Chan(t_channel), "ch_alt": Chan(alt)}),
                 dict(
-                    claim=f"{tn} switch play away from the {t_channel} as {on} adjust, "
-                    f"sending more attacks down the {alt}",
                     metric="channel_entries",
                     subject_team=t,
                     scope={"channel": alt},
                     direction="increase",
                     threshold_pct=40,
                     evidence=[c.sid("channel_share", t, t_channel), c.sid("channel_share", t, alt)],
-                )
+                ),
             )
+        )
     if c.has("ppda", t) and c.v("ppda", t) <= 6:
         specs.append(
-            dict(
-                claim=f"{tn}'s press fades as legs tire, so their PPDA rises",
-                metric="ppda",
-                subject_team=t,
-                scope={},
-                direction="increase",
-                threshold_pct=20,
-                evidence=[c.sid("ppda", t)],
+            (
+                Phrase("p_fade", names),
+                dict(
+                    metric="ppda",
+                    subject_team=t,
+                    scope={},
+                    direction="increase",
+                    threshold_pct=20,
+                    evidence=[c.sid("ppda", t)],
+                ),
             )
         )
     if c.v("possession", t) < 45:
         specs.append(
-            dict(
-                claim=f"{tn} push more players forward and see more of the ball",
-                metric="possession",
-                subject_team=t,
-                scope={},
-                direction="increase",
-                threshold_pct=10,
-                evidence=[c.sid("possession", t)],
+            (
+                Phrase("p_possession", names),
+                dict(
+                    metric="possession",
+                    subject_team=t,
+                    scope={},
+                    direction="increase",
+                    threshold_pct=10,
+                    evidence=[c.sid("possession", t)],
+                ),
             )
         )
     specs.append(
-        dict(
-            claim=f"{tn} chase more of the game and get into the final third more often",
-            metric="final_third_entries",
-            subject_team=t,
-            scope={},
-            direction="increase",
-            threshold_pct=20,
-            evidence=[c.sid("final_third_entries", t)],
+        (
+            Phrase("p_chase", names),
+            dict(
+                metric="final_third_entries",
+                subject_team=t,
+                scope={},
+                direction="increase",
+                threshold_pct=20,
+                evidence=[c.sid("final_third_entries", t)],
+            ),
         )
     )
     specs.append(
-        dict(
-            claim=f"{tn} move the ball forward more directly after the break",
-            metric="progressive_passes",
-            subject_team=t,
-            scope={},
-            direction="increase",
-            threshold_pct=15,
-            evidence=[c.sid("progressive_passes", t)],
+        (
+            Phrase("p_direct", names),
+            dict(
+                metric="progressive_passes",
+                subject_team=t,
+                scope={},
+                direction="increase",
+                threshold_pct=15,
+                evidence=[c.sid("progressive_passes", t)],
+            ),
         )
     )
-    from second_act.agents.verifier import baseline_problem
-
-    specs = [
-        spec
-        for spec in specs
+    usable = [
+        (ph, spec)
+        for ph, spec in specs
         if baseline_problem(
             spec["metric"], spec["subject_team"], spec["scope"].get("channel"), c.signals
         )
         is None
     ]
     return [
-        Prediction(
-            prediction_id=f"p-{t}-{i}",
-            team=t,
-            comparison="second_half_window_mean_vs_first_half_mean",
-            evaluate_after_minute=EVALUATE_AFTER,
-            **spec,
+        TemplatePrediction(
+            ph,
+            Prediction(
+                prediction_id=f"p-{t}-{i}",
+                team=t,
+                claim=ph.render(),
+                comparison="second_half_window_mean_vs_first_half_mean",
+                evaluate_after_minute=EVALUATE_AFTER,
+                **spec,
+            ),
         )
-        for i, spec in enumerate(specs[:3], start=1)
+        for i, (ph, spec) in enumerate(usable[:3], start=1)
     ]
 
 
-def template_briefing(signals: SignalSet, meta: MatchMetadata) -> BriefingDraft:
-    """Build a briefing from first-half signals with fixed rules (offline mode and fallback)."""
+def template_phrases(signals: SignalSet, meta: MatchMetadata) -> TemplateBriefing:
+    """The template briefing as phrases, renderable in every variant."""
     c = _Ctx(signals, meta)
     home, away = meta.home.code, meta.away.code
     g_home, g_away = c.v("goals", home), c.v("goals", away)
     goals_ev = [c.sid("goals", home), c.sid("goals", away)]
     if g_home != g_away:
-        lead, trail = (home, away) if g_home > g_away else (away, home)
+        lead = home if g_home > g_away else away
         tilt = c.v("field_tilt", lead)
-        headline = (
-            f"{c.name(lead)} lead {_fmt(max(g_home, g_away))}-{_fmt(min(g_home, g_away))} "
-            f"at the break with {_fmt(tilt)}% of the final-third passing"
-        )
-        evidence = [*goals_ev, c.sid("field_tilt", lead)]
-        if tilt < 50:
-            headline = (
-                f"{c.name(lead)} lead {_fmt(max(g_home, g_away))}-"
-                f"{_fmt(min(g_home, g_away))} at the break against the run of territory"
-            )
-        del trail
+        params = {
+            "lead": c.name(lead),
+            "gl": Num(max(g_home, g_away)),
+            "gt": Num(min(g_home, g_away)),
+            "tilt": Num(tilt),
+        }
+        if tilt >= 50:
+            headline, evidence = Phrase("h_lead", params), [*goals_ev, c.sid("field_tilt", lead)]
+        else:
+            headline, evidence = Phrase("h_lead_against", params), goals_ev
     else:
         better = home if c.v("xg", home) >= c.v("xg", away) else away
-        headline = (
-            f"Level at {_fmt(g_home)}-{_fmt(g_away)}, with {c.name(better)} edging the "
-            f"chances {_fmt(c.v('xg', better))} xG to "
-            f"{_fmt(c.v('xg', meta.opponent(better)))}"
+        worse = meta.opponent(better)
+        headline = Phrase(
+            "h_level",
+            {
+                "g1": Num(g_home),
+                "g2": Num(g_away),
+                "better": c.name(better),
+                "xg_b": Num(c.v("xg", better)),
+                "xg_w": Num(c.v("xg", worse)),
+            },
         )
         evidence = [*goals_ev, c.sid("xg", home), c.sid("xg", away)]
     teams = [
-        TeamRead(
-            team=t,
-            working=_working(c, t, meta.opponent(t)),
-            not_working=_not_working(c, t, meta.opponent(t)),
-            predictions=_predictions(c, t, meta.opponent(t)),
+        TemplateTeam(
+            t,
+            _working(c, t, meta.opponent(t)),
+            _not_working(c, t, meta.opponent(t)),
+            _predictions(c, t, meta.opponent(t)),
         )
         for t in (home, away)
     ]
-    return BriefingDraft(headline=headline, headline_evidence=evidence, teams=teams)
+    return TemplateBriefing(headline, evidence, teams)
+
+
+def template_briefing(signals: SignalSet, meta: MatchMetadata) -> BriefingDraft:
+    """Build a briefing from first-half signals with fixed rules (offline mode and fallback)."""
+    return template_phrases(signals, meta).render()
 
 
 # ----- model drafting ---------------------------------------------------------
@@ -562,7 +652,8 @@ def candidate_adjustments(signals: SignalSet, meta: MatchMetadata) -> list[str]:
     c = _Ctx(signals, meta)
     out = []
     for t in (meta.home.code, meta.away.code):
-        for p in _predictions(c, t, meta.opponent(t)):
+        for tp in _predictions(c, t, meta.opponent(t)):
+            p = tp.prediction
             channel = p.scope.get("channel", "none")
             out.append(
                 f"- {t}: {p.claim} -> metric={p.metric}, subject_team={p.subject_team}, "

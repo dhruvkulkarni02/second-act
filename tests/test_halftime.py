@@ -63,7 +63,7 @@ class ScriptedDrafter:
 class RejectPoint:
     """Model check that flags Harbour's first working point only."""
 
-    async def check(self, draft, signals):
+    async def check(self, claims):
         return [Issue("HAR.working[0]", "claim not supported by its evidence: test")], {
             "latency_s": 0.0,
             "usage": {},
@@ -71,7 +71,7 @@ class RejectPoint:
 
 
 class RejectAll:
-    async def check(self, draft, signals):
+    async def check(self, claims):
         return [Issue("headline", "claim not supported by its evidence: test")], {
             "latency_s": 0.0,
             "usage": {},
@@ -223,3 +223,13 @@ def test_cache_round_trip_and_key(state: MatchState, tmp_path, monkeypatch) -> N
 
     (tmp_path / f"{key}.json").write_text("not json")
     assert cache.get(key) is None
+
+
+def test_model_prompt_builds_offline(state: MatchState) -> None:
+    """The online prompt (digest, contrasts, candidate adjustments) builds without a model."""
+    from second_act.agents.tactician import briefing_prompt
+
+    prompt = briefing_prompt(state.signals, state.meta, state.score, state.player_name)
+    assert "Candidate adjustments flagged by the analyst" in prompt
+    assert "metric=channel_entries, subject_team=HAR, channel=left, decrease >= 30%" in prompt
+    assert "sig-ppda-KES-p1 = 11.2 ratio  (how hard Kestrel press; lower = harder)" in prompt

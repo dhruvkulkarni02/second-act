@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 from pathlib import Path
 
 import pytest
@@ -15,3 +16,28 @@ MATCH_IDS = ["m-001", "m-002", "m-003"]
 def _offline(monkeypatch: pytest.MonkeyPatch) -> None:
     """Never call a model from tests."""
     monkeypatch.setenv("SECOND_ACT_OFFLINE", "true")
+
+
+@pytest.fixture(scope="session")
+def finished():
+    """Run the demo match offline once and return the runner (state at full time)."""
+    from second_act.orchestration.agent_log import AgentLog
+    from second_act.orchestration.match_runner import MatchRunner
+    from second_act.schema.io import read_events, read_metadata, read_snapshots
+
+    folder = DATA / "m-001"
+    messages: list = []
+
+    async def emit(kind, data):
+        messages.append((kind, data))
+
+    runner = MatchRunner(
+        read_events(folder / "events.jsonl"),
+        read_metadata(folder / "metadata.json"),
+        read_snapshots(folder / "snapshots.jsonl.gz"),
+        offline=True,
+        log=AgentLog(write=False),
+        emit=emit,
+    )
+    asyncio.run(runner.run())
+    return runner, messages
