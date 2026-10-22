@@ -35,8 +35,8 @@ class ScriptedDrafter:
 
     source = "model"
 
-    def __init__(self, bad: set[int], raise_on: set[int] = frozenset()) -> None:
-        self.bad, self.raise_on, self.calls = bad, raise_on, 0
+    def __init__(self, bad: set[int], raise_on: set[int] = frozenset(), where: str = "headline"):
+        self.bad, self.raise_on, self.calls, self.where = bad, raise_on, 0, where
         self.feedback: list[list[str] | None] = []
 
     async def draft(self, state, feedback=None, previous=None) -> DraftResult:
@@ -46,13 +46,28 @@ class ScriptedDrafter:
             raise RuntimeError("model timed out")
         draft = template_briefing(state.signals, state.meta)
         if self.calls in self.bad:
-            draft.teams[0].working[0].text += " They hit the woodwork 4 times."
+            # The headline cannot be pruned, so a bad headline forces a retry; a bad point
+            # can be removed instead.
+            if self.where == "headline":
+                draft.headline += ", hitting the woodwork 4 times"
+            else:
+                draft.teams[0].working[0].text += " They hit the woodwork 4 times."
         return DraftResult(
             draft,
             "model",
             latency_s=0.01,
             usage={"input_token_count": 100, "output_token_count": 50},
         )
+
+
+class RejectPoint:
+    """Model check that flags Harbour's first working point only."""
+
+    async def check(self, draft, signals):
+        return [Issue("HAR.working[0]", "claim not supported by its evidence: test")], {
+            "latency_s": 0.0,
+            "usage": {},
+        }
 
 
 class RejectAll:
@@ -152,3 +167,59 @@ def test_parallel_drafts_keep_the_first_good_candidate(state: MatchState) -> Non
     assert briefing.source == "model" and briefing.attempts == 2
     verdicts = [(r["candidate"], r["ok"]) for r in log.records if r["event"] == "verdict"]
     assert verdicts == [(0, False), (1, True)]
+
+
+def test_invented_number_in_one_point_is_removed_not_rejected(state: MatchState) -> None:
+    drafter = ScriptedDrafter(bad={1}, where="point")
+    log = AgentLog(write=False)
+    briefing = run(state, offline=False, log=log, drafter=drafter, supporter=None)
+    assert drafter.calls == 1 and briefing.source == "model"
+    assert "woodwork" not in briefing.model_dump_json(exclude={"removed_claims"})
+    [removed] = briefing.removed_claims
+    assert removed.startswith("HAR.working: ") and "number 4 does not match" in removed
+    assert log.summary()["claims_removed"] == 1
+
+
+def test_unsupported_point_is_removed(state: MatchState) -> None:
+    drafter = ScriptedDrafter(bad=set())
+    template = template_briefing(state.signals, state.meta)
+    log = AgentLog(write=False)
+    briefing = run(state, offline=False, log=log, drafter=drafter, supporter=RejectPoint())
+    assert drafter.calls == 1 and briefing.source == "model"
+    assert len(briefing.teams[0].working) == len(template.teams[0].working) - 1
+    assert briefing.teams[0].working[0].text == template.teams[0].working[1].text
+    assert [r["event"] for r in log.records].count("pruned") == 1
+
+
+def test_pruning_never_empties_a_section(state: MatchState) -> None:
+    from second_act.agents.verifier import prune
+
+    draft = template_briefing(state.signals, state.meta)
+    only = [Issue(f"HAR.not_working[{i}]", "x") for i in range(len(draft.teams[0].not_working))]
+    assert prune(draft, only) is None
+    assert prune(draft, [Issue("headline", "x")]) is None
+
+
+def test_cache_round_trip_and_key(state: MatchState, tmp_path, monkeypatch) -> None:
+    from second_act.orchestration.cache import BriefingCache, briefing_key
+
+    monkeypatch.setenv(
+        "FOUNDRY_PROJECT_ENDPOINT", "https://acct.services.ai.azure.com/api/projects/p"
+    )
+    monkeypatch.setenv("FOUNDRY_MODEL", "test-model")
+    cache = BriefingCache(tmp_path)
+    key = briefing_key(state, "test-model", "minimal")
+    assert key.startswith("m-001-")
+    assert key != briefing_key(state, "other-model", "minimal")
+    assert cache.get(key) is None
+
+    first = run(state, offline=True, log=AgentLog(write=False))
+    cache.put(key, first)
+    log = AgentLog(write=False)
+    fresh = _state()
+    hit = run(fresh, offline=False, log=log, cache=cache)  # no drafter: must not call a model
+    assert hit == first and fresh.briefing == first and fresh.predictions
+    assert [r["event"] for r in log.records] == ["cache_hit"]
+
+    (tmp_path / f"{key}.json").write_text("not json")
+    assert cache.get(key) is None

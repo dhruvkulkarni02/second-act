@@ -56,6 +56,9 @@ class AgentLog:
             "rejections": sum(not r["ok"] for r in verdicts),
             "issues_caught": sum(len(r.get("issues", [])) for r in verdicts),
             "fallbacks": sum(r["event"] == "fallback" for r in self.records),
+            "claims_removed": sum(
+                len(r.get("removed", [])) for r in self.records if r["event"] == "pruned"
+            ),
             "model_calls": sum(1 for r in self.records if r.get("tokens_in") is not None),
             "tokens_in": tokens_in,
             "tokens_out": tokens_out,

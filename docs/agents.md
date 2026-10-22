@@ -38,11 +38,23 @@ HalftimeRequest -> [tactician] --DraftMessage (N parallel candidates)--> [verifi
   - **Layer 1 (deterministic, `agents/verifier.py`):**
     - every cited ID exists;
     - every number in the text is a cited value (to tolerance or rounding), or a difference, ratio or percentage change between two cited values;
-    - every prediction is evaluable: allowed metric, valid scope, first-half window baseline, threshold 5–80%, evaluated after minute 60–85, ID format;
+    - every prediction is evaluable: allowed metric, valid scope, threshold 5–80%, evaluated after minute 60–85, ID format;
+    - every prediction has a baseline thick enough to test: at least 6 first-half events for count metrics, at least 0.5 for xG, and values in at least 5 windows for rates and ratios. Below that, one or two events would decide the result. The template applies the same rule when it proposes predictions;
     - structure: two teams, 1–3 points per section, 2–3 predictions each.
   - **Layer 2 (online only):** one batched model call judges whether each claim's meaning follows from its cited values. It sees the metric definitions with the evidence. A failure in layer 2 itself is logged but doesn't block a draft that already passed layer 1.
-- **Retry.** If no candidate passes, the verifier sends the reasons for the closest candidate back to the tactician. That happens at most twice, and only if another round fits the time budget (`SECOND_ACT_HALFTIME_BUDGET_S`, default 25 s). The budget check is predictive: elapsed time plus the last round's duration.
+- **Repair before retry.** When a draft fails only on specific points or predictions, the verifier removes those claims instead of discarding the draft. It does this only if each team keeps at least one point per section and two predictions. A candidate rejected by the model check is pruned and accepted, because its other claims were already judged supported. A candidate rejected by the deterministic layer is pruned and then model-checked, if the budget allows. Removed claims, with reasons, are kept in `Briefing.removed_claims`. Problems in the headline or the structure can't be pruned.
+- **Retry.** If no candidate passes or can be repaired, the verifier sends the reasons for the closest candidate back to the tactician. That happens at most twice, and only if another round fits the time budget (`SECOND_ACT_HALFTIME_BUDGET_S`, default 25 s). The budget check is predictive: elapsed time plus the last round's duration.
 - **Fallback.** After the retries, or when time runs out, `template_briefing` builds the briefing directly from the signals. It's grounded by construction, and its own check result is logged too.
+
+## Briefing cache
+
+`orchestration/cache.py` stores verified online briefings in `.cache/briefings/` (gitignored, set with `SECOND_ACT_CACHE_DIR`). The key is built from:
+
+- every event seen so far;
+- the model deployment and reasoning effort;
+- `PROMPT_VERSION`, which must be bumped whenever prompts or verifier rules change.
+
+Replaying the same match reuses the briefing without calling the model: 0.8 s instead of about 22 s. Offline briefings are deterministic and aren't cached.
 
 ## Logging
 
@@ -60,7 +72,8 @@ HalftimeRequest -> [tactician] --DraftMessage (N parallel candidates)--> [verifi
 | --- | --- | --- | --- |
 | One draft per round, before signal labels | 5 | 3 verified first time, 1 verified after a retry (32 s), 1 fallback | 20–32 s |
 | Two parallel drafts, before signal labels | 4 | 3 verified, 1 fallback (both drafts misread Kestrel's PPDA) | 21–25 s |
-| Two parallel drafts, with labels (current) | 4 | 4 verified; 1 of 8 drafts rejected by the model check | 22–26 s |
+| Two parallel drafts, with labels | 4 | 4 verified; 1 of 8 drafts rejected by the model check | 22–26 s |
+| Plus the thin-baseline rule and pruning (current) | 6 | 6 verified, 0 fallbacks; 2 of 12 drafts rejected, each covered by the other candidate | 20–23 s |
 
 Each current briefing uses about 14k input and 4.6k output tokens across two drafts and two support checks.
 

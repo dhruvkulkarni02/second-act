@@ -14,6 +14,7 @@ import sys
 from pathlib import Path
 
 from second_act.orchestration.agent_log import AgentLog
+from second_act.orchestration.cache import BriefingCache
 from second_act.orchestration.foundry import FoundryNotConfigured, offline_mode
 from second_act.orchestration.halftime import run_halftime
 from second_act.schema.briefing import Briefing
@@ -56,6 +57,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--offline", action="store_true", help="template tactician, no model calls")
     parser.add_argument("--data", type=Path, default=Path("data"))
     parser.add_argument("--json", type=Path, help="also write the briefing to this file")
+    parser.add_argument("--no-cache", action="store_true", help="always call the model")
     args = parser.parse_args(argv)
     folder = args.data / args.match_id
     snaps = folder / "snapshots.jsonl.gz"
@@ -67,7 +69,8 @@ def main(argv: list[str] | None = None) -> int:
     log = AgentLog()
     offline = args.offline or offline_mode()
     try:
-        briefing = asyncio.run(run_halftime(state, offline=offline, log=log))
+        cache = None if args.no_cache else BriefingCache()
+        briefing = asyncio.run(run_halftime(state, offline=offline, log=log, cache=cache))
     except FoundryNotConfigured as exc:
         print(
             f"online mode is not configured: {exc}\nUse --offline to run without a model.",

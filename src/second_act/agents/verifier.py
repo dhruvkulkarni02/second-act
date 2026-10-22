@@ -17,7 +17,7 @@ from dataclasses import dataclass, field
 
 from pydantic import BaseModel, Field
 
-from second_act.analytics.signals import SignalSet
+from second_act.analytics.signals import SignalSet, make_id
 from second_act.schema.briefing import BriefingDraft, Point
 from second_act.schema.metadata import MatchMetadata
 from second_act.schema.predictions import Prediction, PredictionStatus
@@ -47,6 +47,11 @@ CHANNELS = {"left", "centre", "right"}
 MIN_EVALUATE_MINUTE, MAX_EVALUATE_MINUTE = 60, 85
 MIN_THRESHOLD, MAX_THRESHOLD = 5.0, 80.0
 PREDICTIONS_PER_TEAM = (2, 3)
+
+# A prediction compares second-half window means with the first half; below these
+# first-half totals one or two events would swing the result, so the test is noise.
+MIN_BASELINE_TOTAL = {"count": 6.0, "xg": 0.5}
+MIN_BASELINE_WINDOWS = 5
 
 ABS_TOLERANCE = 0.05
 REL_TOLERANCE = 0.01
@@ -174,6 +179,30 @@ def check_point(point: Point, signals: SignalSet, where: str) -> list[Issue]:
     return issues + check_numbers(point.text, values, where)
 
 
+def baseline_problem(
+    metric: str, subject_team: str, qualifier: str | None, signals: SignalSet
+) -> str | None:
+    """Why a first-half baseline is too thin to test against, or None if it is usable."""
+    baseline = signals.window_values(metric, subject_team, qualifier, 1)
+    if not baseline:
+        return "no first-half window values to compare against"
+    half = signals.get(make_id(metric, subject_team, qualifier, 1))
+    unit = half.unit if half is not None else ""
+    if unit in MIN_BASELINE_TOTAL:
+        minimum = MIN_BASELINE_TOTAL[unit]
+        if sum(baseline) < minimum:
+            return (
+                f"first-half baseline is too thin to test ({sum(baseline):g} in total, "
+                f"need at least {minimum:g}); pick a metric with more events"
+            )
+    elif len(baseline) < MIN_BASELINE_WINDOWS:
+        return (
+            f"only {len(baseline)} first-half windows have a value; need at least "
+            f"{MIN_BASELINE_WINDOWS}"
+        )
+    return None
+
+
 def check_prediction(
     pred: Prediction, team: str, meta: MatchMetadata, signals: SignalSet, where: str
 ) -> list[Issue]:
@@ -219,11 +248,9 @@ def check_prediction(
     if pred.status is not PredictionStatus.OPEN:
         issues.append(Issue(where, "new predictions must have status open"))
     if pred.metric in EVALUABLE_METRICS and pred.subject_team in teams:
-        baseline = signals.window_values(pred.metric, pred.subject_team, qualifier, 1)
-        if not baseline:
-            issues.append(Issue(where, "no first-half window values to compare against"))
-        elif pred.direction == "decrease" and sum(baseline) == 0:
-            issues.append(Issue(where, "first-half baseline is zero, so it cannot decrease"))
+        problem = baseline_problem(pred.metric, pred.subject_team, qualifier, signals)
+        if problem:
+            issues.append(Issue(where, problem))
     values, evidence_issues = _cited(pred.evidence, signals, where)
     if pred.evidence:
         issues.extend(evidence_issues)
@@ -270,6 +297,45 @@ def check_briefing(
             seen_ids.add(pred.prediction_id)
             issues += check_prediction(pred, read.team, meta, signals, where)
     return VerificationReport(issues)
+
+
+_LOCATION = re.compile(r"^([A-Z]{3})\.(working|not_working|predictions)\[(\d+)\]$")
+MIN_POINTS = 1
+
+
+def prune(draft: BriefingDraft, issues: Sequence[Issue]) -> tuple[BriefingDraft, list[str]] | None:
+    """Remove the claims that failed, if every issue is tied to one removable claim and
+    each team still has a point in each section and at least two predictions.
+
+    Returns the pruned draft and descriptions of what was removed, or None.
+    """
+    targets: dict[tuple[str, str], set[int]] = {}
+    for issue in issues:
+        match = _LOCATION.match(issue.where)
+        if match is None:
+            return None  # headline or structural problems cannot be pruned
+        team, kind, index = match.group(1), match.group(2), int(match.group(3))
+        targets.setdefault((team, kind), set()).add(index)
+    pruned = draft.model_copy(deep=True)
+    removed: list[str] = []
+    for read in pruned.teams:
+        for kind in ("working", "not_working", "predictions"):
+            drop = targets.get((read.team, kind), set())
+            items = getattr(read, kind)
+            keep = [x for i, x in enumerate(items) if i not in drop]
+            minimum = PREDICTIONS_PER_TEAM[0] if kind == "predictions" else MIN_POINTS
+            if len(keep) < minimum:
+                return None
+            for i in sorted(drop):
+                if i < len(items):
+                    item = items[i]
+                    text = item.claim if kind == "predictions" else item.text
+                    reasons = "; ".join(
+                        x.message for x in issues if x.where == f"{read.team}.{kind}[{i}]"
+                    )
+                    removed.append(f"{read.team}.{kind}: {text} -- {reasons}")
+            setattr(read, kind, keep)
+    return pruned, removed
 
 
 def normalize_draft(draft: BriefingDraft) -> BriefingDraft:
