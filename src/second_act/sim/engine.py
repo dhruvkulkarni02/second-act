@@ -50,6 +50,7 @@ CHANNEL_RANGES = {
     "right": (CHANNEL_EDGES[1] + 1.0, PITCH_WIDTH - 3.0),
 }
 CHANNEL_CENTRES = {name: (lo + hi) / 2 for name, (lo, hi) in CHANNEL_RANGES.items()}
+KICKOFF_ROLES = ("ST", "LST", "RST", "AM")
 
 
 @dataclass
@@ -114,6 +115,7 @@ class _Ball:
     y: float
     dead: bool = False
     after_cross: bool = False
+    kickoff: bool = False
 
 
 def _sigmoid(z: float) -> float:
@@ -341,6 +343,36 @@ class _Simulator:
         self.key(code, x, y, holder)
         return _Ball(code, holder, x, y, dead=not open_play)
 
+    def kickoff(self, code: str, delay: float) -> _Ball:
+        """Restart from the centre spot: a forward takes it and plays it backward."""
+        self.seq += 1
+        lineup = self.state[code].lineup
+        taker = next((lineup[r] for r in KICKOFF_ROLES if r in lineup), None)
+        centre = (PITCH_LENGTH / 2, PITCH_WIDTH / 2)
+        holder = taker or self.nearest(code, centre, centre, True)[0]
+        self.emit(EventType.POSSESSION_CHANGE, code, holder, at=centre, outcome="dead_ball")
+        self.key(code, *centre, holder)
+        self.t += delay
+        self.key(code, *centre, holder)
+        return _Ball(code, holder, *centre, dead=True, kickoff=True)
+
+    def kickoff_pass(self, ball: _Ball) -> _Ball:
+        """The first touch of a kickoff: a short pass back into midfield."""
+        att, rng = ball.team, self.rng
+        ex = clamp(ball.x + rng.gauss(-14, 4), 25.0, ball.x - 4.0)
+        ey = clamp(ball.y + rng.gauss(0, 8), 10.0, PITCH_WIDTH - 10.0)
+        receiver = self.nearest(att, (ex, ey), (ex, ey), True, exclude=ball.player)[0]
+        dist = math.dist((ball.x, ball.y), (ex, ey))
+        speed = clamp(24 + 1.5 * dist + rng.gauss(0, 4), 20, 60)
+        self.emit(EventType.PASS, att, ball.player, at=(ball.x, ball.y), end=(ex, ey),
+                  outcome="complete", related_player_id=receiver, speed_kmh=round(speed, 1),
+                  body_part="foot")  # fmt: skip
+        self.key(att, ball.x, ball.y, ball.player)
+        self.t += dist / (speed / 3.6)
+        self.key(att, ex, ey, receiver)
+        self.t += self.hold_time(self.state[att].tactics)
+        return _Ball(att, receiver, ex, ey)
+
     def turnover(self, att: str, point_att: tuple[float, float], open_play: bool, delay: float):
         d = self.opponent(att)
         return self.restart(
@@ -353,6 +385,8 @@ class _Simulator:
     # ----- actions -----------------------------------------------------------
 
     def step(self, ball: _Ball) -> _Ball:
+        if ball.kickoff:
+            return self.kickoff_pass(ball)
         att, dfd = ball.team, self.opponent(ball.team)
         ta, td = self.state[att].tactics, self.state[dfd].tactics
         x, y = ball.x, ball.y
@@ -640,7 +674,7 @@ class _Simulator:
             self.emit(
                 EventType.GOAL, att, ball.player, at=(x, y), body_part="head" if head else "foot"
             )
-            return self.restart(dfd, PITCH_LENGTH / 2, PITCH_WIDTH / 2, rng.uniform(55, 80), False)
+            return self.kickoff(dfd, rng.uniform(55, 80))
         if outcome == "off_target":
             return self.restart(dfd, 5.5, GOAL_Y + rng.uniform(-9, 9), rng.uniform(18, 28), False)
         if outcome == "saved":
@@ -672,7 +706,7 @@ class _Simulator:
             self.emit(EventType.PERIOD_START)
             self.apply_due_changes()
             kickoff = self.cfg.home if period == 1 else self.cfg.away
-            ball = self.restart(kickoff, PITCH_LENGTH / 2, PITCH_WIDTH / 2, 0.0, open_play=False)
+            ball = self.kickoff(kickoff, 0.0)
             while self.t < length:
                 self.apply_due_changes()
                 ball = self.step(ball)

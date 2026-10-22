@@ -37,6 +37,8 @@ The engine (`sim/engine.py`) is a possession-by-possession Markov model with one
 4. **Carries.** Distance and speed scale with `tempo`, capped at the player's pace. Dispossession rises with pressure, with the channel block on entries, and inside the box.
 5. **Shots.** The true scoring chance is `sigmoid(−1.9 − 0.11 × distance + 1.6 × goal_angle)`. Headers are ×0.6, shots under pressure ×0.8, and the result is scaled by `finishing`. A shot is a goal, saved, off target or blocked, and saves and blocks can produce rebounds.
 
+Kickoffs (at the start of each half and after goals) are taken by the team's striker and played backward into midfield.
+
 Receivers, pressers, tacklers and interceptors are the nearest players in each team's current shape (`sim/formations.py`). The shape is the formation template shifted with the ball, with its line set by `def_line`, spread by `width`, and the holding midfielder lowered by `pivot_drop`.
 
 **Phases** change formation, roles or tactics at a match time. **Substitutions** put the incoming player in the outgoing player's role.
@@ -58,7 +60,7 @@ Harbour: high press (`press_height 0.88`, `press_intensity 0.78`), left-channel 
 | Kestrel own-third losses, H1 → H2 | about −13% (deeper pivot: little effect) |
 | Mean ball-win x, H1 | Harbour ~53 m, Kestrel ~27 m |
 
-The scoreline is random. `find-seed` scans seeds in order and pins the first one whose sampled events pass every check: HT 1–0, FT 1–1, Harbour scoring after 15', Kestrel equalizing after 55', and the effects above. That seed is **118** (Harbour 43', Kestrel 73'). The tactics stay the same whatever the seed. The seed only decides which random match is shown.
+The scoreline is random. `find-seed` scans seeds in order and pins the first one whose sampled events pass every check: HT 1–0, FT 1–1, Harbour scoring after 15', Kestrel equalizing after 55', and the effects above. That seed is **433** (Harbour 34', Kestrel 58'). The tactics stay the same whatever the seed. The seed only decides which random match is shown.
 
 ## Control matches
 

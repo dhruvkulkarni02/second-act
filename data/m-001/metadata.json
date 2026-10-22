@@ -277,10 +277,10 @@
   },
   "venue": "Dockside Park, Harbour Town",
   "kickoff": "2026-10-24T15:00:00+01:00",
-  "seed": 118,
+  "seed": 433,
   "period_lengths_s": {
-    "1": 2840.69,
-    "2": 2961.46
+    "1": 2842.61,
+    "2": 2954.31
   },
   "attacking_toward_high_x": {
     "1": "HAR",
