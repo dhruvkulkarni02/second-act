@@ -25,20 +25,37 @@ from tests.conftest import DATA
 
 _ids = itertools.count(1)
 NEEDS_OUTCOME = {
-    "pass": "complete", "carry": "complete", "tackle": "won", "interception": "won",
-    "possession_change": "open_play", "shot": "saved",
-}  # fmt: skip
+    "pass": "complete",
+    "carry": "complete",
+    "tackle": "won",
+    "interception": "won",
+    "possession_change": "open_play",
+    "shot": "saved",
+}
 
 
-def ev(etype: str, team: str | None = None, x: float | None = None, y: float | None = None,
-       end: tuple[float, float] | None = None, period: int = 1, t: float = 0.0,
-       **fields: object) -> Event:  # fmt: skip
+def ev(
+    etype: str,
+    team: str | None = None,
+    x: float | None = None,
+    y: float | None = None,
+    end: tuple[float, float] | None = None,
+    period: int = 1,
+    t: float = 0.0,
+    **fields: object,
+) -> Event:
     """An event in raw coordinates (HAR attacks toward x = 105 in period 1)."""
     clock = int(t) + (0 if period == 1 else 45 * 60)
     data: dict[str, object] = {
-        "event_id": f"e-{next(_ids):06d}", "match_id": "m-test", "period": period,
-        "minute": clock // 60, "second": clock % 60, "type": etype, "team": team, "t": t,
-    }  # fmt: skip
+        "event_id": f"e-{next(_ids):06d}",
+        "match_id": "m-test",
+        "period": period,
+        "minute": clock // 60,
+        "second": clock % 60,
+        "type": etype,
+        "team": team,
+        "t": t,
+    }
     if team is not None:
         data["player_id"] = f"{team}-9"
     if x is not None:
@@ -70,8 +87,7 @@ def ended(events: list[Event], period: int = 1, t: float = 2820.0) -> list[Event
 
 
 def test_windows_fold_stoppage_into_last() -> None:
-    assert [window_of(t) for t in (0, 299.9, 300, 2399, 2400, 2700, 3000)] == [
-        0, 0, 1, 7, 8, 8, 8]  # fmt: skip
+    assert [window_of(t) for t in (0, 299.9, 300, 2399, 2400, 2700, 3000)] == [0, 0, 1, 7, 8, 8, 8]
     assert window_bounds(8, 2820.0) == (2400.0, 2820.0)
     assert window_bounds(3, 2820.0) == (900.0, 1200.0)
 
@@ -125,8 +141,10 @@ def test_field_tilt_counts_passes_started_in_final_third(meta: MatchMetadata) ->
 
 def test_ppda(meta: MatchMetadata) -> None:
     # Four KES passes in KES's own defensive 60% (x < 63), one in HAR's half.
-    kes_passes = [ev("pass", "KES", *kes(x, 30), end=kes(x + 5, 30), t=10 + i)
-                  for i, x in enumerate((10, 30, 50, 62, 70))]  # fmt: skip
+    kes_passes = [
+        ev("pass", "KES", *kes(x, 30), end=kes(x + 5, 30), t=10 + i)
+        for i, x in enumerate((10, 30, 50, 62, 70))
+    ]
     har_actions = [
         ev("tackle", "HAR", 60, 30, t=30),  # x >= 42: counts
         ev("interception", "HAR", 80, 30, t=31),  # counts
@@ -263,7 +281,8 @@ def test_rhythm_and_control_index(meta: MatchMetadata) -> None:
     assert s.value("control_index", "HAR", None, 1) == pytest.approx(100 * 2 / (2 + 3 * 1), 0.01)
     # Match level: mean run 5/3, per-team turnover rate (1 + 1) / 2 per minute.
     assert s.value("control_index", None, None, 1) == pytest.approx(
-        100 * (5 / 3) / (5 / 3 + 3 * 1), abs=0.05)  # fmt: skip
+        100 * (5 / 3) / (5 / 3 + 3 * 1), abs=0.05
+    )
 
 
 def test_pass_network(meta: MatchMetadata) -> None:
@@ -274,7 +293,9 @@ def test_pass_network(meta: MatchMetadata) -> None:
     ]
     net = pass_network(events, meta, "HAR", 1)
     assert [(e.a, e.b, e.passes) for e in net.edges] == [
-        ("HAR-4", "HAR-8", 2), ("HAR-11", "HAR-4", 1)]  # fmt: skip
+        ("HAR-4", "HAR-8", 2),
+        ("HAR-11", "HAR-4", 1),
+    ]
     node = {n.player_id: n for n in net.nodes}["HAR-4"]
     assert (node.x, node.y, node.touches) == (30.0, 20.0, 3)
 
@@ -292,13 +313,24 @@ def _snap(t: float, har: list[tuple[str, float, float]], kes_: list[tuple[str, f
 def test_defensive_line_width_and_sprints(meta: MatchMetadata) -> None:
     events_meta = meta.model_copy(update={"period_lengths_s": {1: 10.0, 2: 2700.0}})
     events = ended([ev("pass", "HAR", 50, 34, end=(55, 34), t=0)], t=10.0)  # HAR in possession
-    kes_line = [("KES-2", 80, 10), ("KES-3", 82, 30), ("KES-4", 84, 40), ("KES-5", 86, 60),
-                ("KES-8", 60, 34)]  # fmt: skip
+    kes_line = [
+        ("KES-2", 80, 10),
+        ("KES-3", 82, 30),
+        ("KES-4", 84, 40),
+        ("KES-5", 86, 60),
+        ("KES-8", 60, 34),
+    ]
     har_xs = [0, 8, 16, 24, 24, 24, 32, 32, 32, 32, 32]  # HAR-7 sprints twice
     snaps = []
     for t, x7 in enumerate(har_xs):
-        har = [("HAR-7", float(x7), 34.0), ("HAR-2", 30, 5), ("HAR-3", 30, 60), ("HAR-4", 25, 30),
-               ("HAR-5", 25, 40), ("HAR-1", 5, 34)]  # fmt: skip
+        har = [
+            ("HAR-7", float(x7), 34.0),
+            ("HAR-2", 30, 5),
+            ("HAR-3", 30, 60),
+            ("HAR-4", 25, 30),
+            ("HAR-5", 25, 40),
+            ("HAR-1", 5, 34),
+        ]
         snaps.append(_snap(float(t), har, kes_line))
     snaps[7].players[0] = PlayerPosition(player_id="HAR-7", x=40.0, y=34.0)
     s = compute_signals(events, events_meta, snaps)
@@ -350,10 +382,13 @@ def test_demo_harbour_left_overload_first_half(demo) -> None:
 
 
 def test_demo_kestrel_low_turnover_height(demo) -> None:
-    assert demo.value("turnover_height", "KES", None, 1) < demo.value(
-        "turnover_height", "HAR", None, 1) - 20  # fmt: skip
+    assert (
+        demo.value("turnover_height", "KES", None, 1)
+        < demo.value("turnover_height", "HAR", None, 1) - 20
+    )
     assert demo.value("high_regains", "HAR", None, 1) >= 5 * demo.value(
-        "high_regains", "KES", None, 1)  # fmt: skip
+        "high_regains", "KES", None, 1
+    )
     assert demo.value("ppda", "HAR", None, 1) < demo.value("ppda", "KES", None, 1)
 
 

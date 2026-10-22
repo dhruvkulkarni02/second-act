@@ -4,6 +4,7 @@ Events, position snapshots and match metadata describe the synthetic input;
 signals, predictions and cues describe what the agents produce from it.
 """
 
+from second_act.schema.briefing import Briefing, BriefingDraft, Point, TeamRead
 from second_act.schema.cues import Cue, CueKind
 from second_act.schema.events import (
     PITCH_LENGTH,
@@ -28,6 +29,8 @@ __all__ = [
     "PITCH_LENGTH",
     "PITCH_WIDTH",
     "BallPosition",
+    "Briefing",
+    "BriefingDraft",
     "Cue",
     "CueKind",
     "Event",
@@ -35,11 +38,13 @@ __all__ = [
     "MatchMetadata",
     "Player",
     "PlayerPosition",
+    "Point",
     "Prediction",
     "PredictionStatus",
     "Signal",
     "Snapshot",
     "TeamInfo",
+    "TeamRead",
     "read_events",
     "read_metadata",
     "read_snapshots",
