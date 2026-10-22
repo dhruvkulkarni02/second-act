@@ -9,7 +9,8 @@ class Signal(BaseModel):
     """One computed value in the shared match state.
 
     IDs look like ``sig-channel_entries-HAR-left-p1w4``: metric, team, optional
-    qualifier, and scope (``p1`` for a whole half, ``p1w4`` for its fifth window).
+    qualifier (channel, zone or ``n<shirt>`` for a player), and scope (``p1`` for
+    a whole half, ``p1w4`` for its fifth five-minute window).
     """
 
     model_config = ConfigDict(extra="forbid")
@@ -20,6 +21,7 @@ class Signal(BaseModel):
     unit: str
     team: str | None = None
     qualifier: str | None = None
+    player_id: str | None = None
     period: int | None = Field(default=None, ge=1, le=2)
     window: int | None = Field(default=None, ge=0)
     scope: str = Field(description="'half' or 'window'.")

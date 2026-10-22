@@ -4,7 +4,7 @@
 
 Second Act is a multi-agent system that turns a live stream of synthetic football events into explainable match intelligence. Its centrepiece is a half-time briefing that predicts each manager's adjustments as measurable tests, then confirms or rejects them on screen during the second half. Built for the Microsoft × Premier League *Inside the Game* hackathon. See [PRD.md](PRD.md).
 
-> Status: milestone M1 (scaffold, schemas, synthetic data, Foundry connectivity). The full README arrives in M6.
+> Status: milestones M1 (scaffold, schemas, synthetic data, Foundry connectivity) and M2 (analytics) are done. The full README arrives in M6.
 
 ## Quick start (offline)
 
@@ -12,6 +12,7 @@ Second Act is a multi-agent system that turns a live stream of synthetic footbal
 uv venv --python 3.12 && uv pip install -e ".[dev]"
 second-act-generate generate        # regenerate data/ (deterministic)
 second-act-generate story           # check the demo story in the raw events
+second-act-signals m-001            # print the computed signal summary
 pytest                              # offline: no model calls
 ```
 
@@ -27,3 +28,7 @@ The M1 connectivity check ran against a `gpt-5-mini` Global Standard deployment 
 ## Synthetic data
 
 Three seeded matches between two fictional clubs, Harbour Town and Kestrel Athletic, live in `data/`. Each has events, metadata and 1 Hz position snapshots. [docs/generator.md](docs/generator.md) covers how tactics parameters become events, how the demo story is planted and checked, and the known limitations.
+
+## Analytics
+
+`second_act.analytics.compute_signals` computes every signal in PRD section 7, each with a stable ID such as `sig-channel_entries-HAR-left-p1w4`, per five-minute window and per half. It uses no model calls. Definitions and formulas, including xG, pass difficulty and the control index, are in [docs/formulas.md](docs/formulas.md).
