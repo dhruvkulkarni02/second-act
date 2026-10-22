@@ -36,7 +36,7 @@ class FoundrySettings:
         load_dotenv()
         endpoint = os.environ.get("FOUNDRY_PROJECT_ENDPOINT", "").strip()
         model = os.environ.get("FOUNDRY_MODEL", "").strip()
-        effort = os.environ.get("FOUNDRY_REASONING_EFFORT", "low").strip() or None
+        effort = os.environ.get("FOUNDRY_REASONING_EFFORT", "minimal").strip() or None
         if not endpoint or not model or "<" in endpoint or "<" in model:
             raise FoundryNotConfigured(
                 "Set FOUNDRY_PROJECT_ENDPOINT and FOUNDRY_MODEL (see .env.example)."

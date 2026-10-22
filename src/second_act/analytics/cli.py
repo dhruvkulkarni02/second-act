@@ -14,16 +14,29 @@ from second_act.analytics.signals import SignalSet, compute_signals
 from second_act.schema.io import read_events, read_metadata, read_snapshots
 
 HALF_METRICS = [
-    ("possession", None, "%"), ("field_tilt", None, "%"), ("ppda", None, ""),
-    ("turnover_height", None, " m"), ("high_regains", None, ""),
-    ("final_third_entries", None, ""), ("channel_share", "left", "%"),
-    ("channel_share", "centre", "%"), ("channel_share", "right", "%"),
-    ("progressive_passes", None, ""), ("pass_completion", None, "%"),
-    ("pass_difficulty", None, ""), ("shots", None, ""), ("xg", None, ""), ("goals", None, ""),
-    ("sequence_length", None, ""), ("turnovers_per_min", None, ""),
-    ("control_index", None, ""), ("def_line_height", None, " m"), ("team_width", None, " m"),
-    ("sprints", None, ""), ("fast_shots", None, ""),
-]  # fmt: skip
+    ("possession", None, "%"),
+    ("field_tilt", None, "%"),
+    ("ppda", None, ""),
+    ("turnover_height", None, " m"),
+    ("high_regains", None, ""),
+    ("final_third_entries", None, ""),
+    ("channel_share", "left", "%"),
+    ("channel_share", "centre", "%"),
+    ("channel_share", "right", "%"),
+    ("progressive_passes", None, ""),
+    ("pass_completion", None, "%"),
+    ("pass_difficulty", None, ""),
+    ("shots", None, ""),
+    ("xg", None, ""),
+    ("goals", None, ""),
+    ("sequence_length", None, ""),
+    ("turnovers_per_min", None, ""),
+    ("control_index", None, ""),
+    ("def_line_height", None, " m"),
+    ("team_width", None, " m"),
+    ("sprints", None, ""),
+    ("fast_shots", None, ""),
+]
 
 
 def _fmt(value: float | None, suffix: str) -> str:

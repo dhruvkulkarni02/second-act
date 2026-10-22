@@ -364,9 +364,17 @@ class _Simulator:
         receiver = self.nearest(att, (ex, ey), (ex, ey), True, exclude=ball.player)[0]
         dist = math.dist((ball.x, ball.y), (ex, ey))
         speed = clamp(24 + 1.5 * dist + rng.gauss(0, 4), 20, 60)
-        self.emit(EventType.PASS, att, ball.player, at=(ball.x, ball.y), end=(ex, ey),
-                  outcome="complete", related_player_id=receiver, speed_kmh=round(speed, 1),
-                  body_part="foot")  # fmt: skip
+        self.emit(
+            EventType.PASS,
+            att,
+            ball.player,
+            at=(ball.x, ball.y),
+            end=(ex, ey),
+            outcome="complete",
+            related_player_id=receiver,
+            speed_kmh=round(speed, 1),
+            body_part="foot",
+        )
         self.key(att, ball.x, ball.y, ball.player)
         self.t += dist / (speed / 3.6)
         self.key(att, ex, ey, receiver)

@@ -59,9 +59,18 @@ MIN_NODE_TOUCHES = 5
 TOP_PAIRS = 5
 
 DIGITS = {
-    "count": 0, "pct": 1, "m": 1, "ratio": 1, "xg": 2, "index": 1,
-    "per_min": 2, "kmh": 1, "actions": 2, "rating": 1, "km": 2,
-}  # fmt: skip
+    "count": 0,
+    "pct": 1,
+    "m": 1,
+    "ratio": 1,
+    "xg": 2,
+    "index": 1,
+    "per_min": 2,
+    "kmh": 1,
+    "actions": 2,
+    "rating": 1,
+    "km": 2,
+}
 
 
 def make_id(
@@ -330,8 +339,9 @@ def _event_signals(
             by_team[n.team].append(n)
     on_ball = {t: [n for n in by_team[t] if n.event.type in ON_BALL] for t in teams}
     passes = {t: [n for n in by_team[t] if n.event.type is EventType.PASS] for t in teams}
-    final_third_passes = {t: sum(n.x is not None and n.x >= FINAL_THIRD_X for n in passes[t])
-                          for t in teams}  # fmt: skip
+    final_third_passes = {
+        t: sum(n.x is not None and n.x >= FINAL_THIRD_X for n in passes[t]) for t in teams
+    }
     runs = _sequences(evs)
     total_on_ball = sum(len(v) for v in on_ball.values())
     lost_open_play: Counter[str] = Counter()
@@ -346,8 +356,13 @@ def _event_signals(
         b.add("passes", len(passes[team]), "count", scope, team)
         complete = [n for n in passes[team] if n.event.outcome == "complete"]
         b.add("pass_completion", _share(len(complete), len(passes[team])), "pct", scope, team)
-        b.add("field_tilt", _share(final_third_passes[team], sum(final_third_passes.values())),
-              "pct", scope, team)  # fmt: skip
+        b.add(
+            "field_tilt",
+            _share(final_third_passes[team], sum(final_third_passes.values())),
+            "pct",
+            scope,
+            team,
+        )
 
         # PPDA: opponent passes in their own defensive 60% per defensive action there.
         opp_passes = sum(n.x is not None and n.x < PPDA_OPP_ZONE_X for n in passes[opp])
@@ -363,10 +378,12 @@ def _event_signals(
         b.add("ppda", opp_passes / actions if actions else None, "ratio", scope, team)
 
         wins = [
-            n.x for n in mine
-            if n.event.type is EventType.POSSESSION_CHANGE and n.event.outcome == "open_play"
+            n.x
+            for n in mine
+            if n.event.type is EventType.POSSESSION_CHANGE
+            and n.event.outcome == "open_play"
             and n.x is not None
-        ]  # fmt: skip
+        ]
         b.add("turnover_height", _mean(wins), "m", scope, team)
         b.add("high_regains", sum(x >= FINAL_THIRD_X for x in wins), "count", scope, team)
 
@@ -394,11 +411,19 @@ def _event_signals(
 
         shots = [n for n in mine if n.event.type is EventType.SHOT]
         b.add("shots", len(shots), "count", scope, team)
-        b.add("shots_on_target", sum(n.event.outcome in ("goal", "saved") for n in shots),
-              "count", scope, team)  # fmt: skip
+        b.add(
+            "shots_on_target",
+            sum(n.event.outcome in ("goal", "saved") for n in shots),
+            "count",
+            scope,
+            team,
+        )
         b.add("goals", sum(n.event.type is EventType.GOAL for n in mine), "count", scope, team)
-        xg = sum(expected_goals(n.x, n.y, n.event.body_part) for n in shots
-                 if n.x is not None and n.y is not None)  # fmt: skip
+        xg = sum(
+            expected_goals(n.x, n.y, n.event.body_part)
+            for n in shots
+            if n.x is not None and n.y is not None
+        )
         b.add("xg", xg, "xg", scope, team)
 
         difficulties = [_difficulty(n, meta, tracking) for n in complete if n.end_x is not None]
@@ -416,8 +441,12 @@ def _event_signals(
     if all_lengths:
         # Match-level: the per-team turnover rate, so it is on the same scale as team values.
         rate = sum(lost_open_play.values()) / len(teams) / scope.minutes
-        b.add("control_index", _control_index(sum(all_lengths) / len(all_lengths), rate),
-              "index", scope)  # fmt: skip
+        b.add(
+            "control_index",
+            _control_index(sum(all_lengths) / len(all_lengths), rate),
+            "index",
+            scope,
+        )
 
 
 def _control_index(seq_len: float, turnovers_per_min: float) -> float:
@@ -504,17 +533,25 @@ def _half_only_signals(
         # Possession share per zone: my on-ball events in my third Z versus the
         # opponent's in the same physical area (their mirror third).
         for zone in THIRDS:
-            me = sum(n.event.type in ON_BALL and n.x is not None and third_of(n.x) == zone
-                     for n in mine)  # fmt: skip
-            them = sum(n.event.type in ON_BALL and n.x is not None
-                       and third_of(n.x) == MIRROR[zone] for n in theirs)  # fmt: skip
+            me = sum(
+                n.event.type in ON_BALL and n.x is not None and third_of(n.x) == zone for n in mine
+            )
+            them = sum(
+                n.event.type in ON_BALL and n.x is not None and third_of(n.x) == MIRROR[zone]
+                for n in theirs
+            )
             b.add("possession", _share(me, me + them), "pct", half, team, f"{zone}_third")
 
         entries: Counter[str] = Counter()
         for n in mine:
-            if (n.event.type in (EventType.PASS, EventType.CARRY) and n.event.outcome == "complete"
-                    and n.x is not None and n.end_x is not None and n.end_y is not None
-                    and enters_final_third(n.x, n.end_x)):  # fmt: skip
+            if (
+                n.event.type in (EventType.PASS, EventType.CARRY)
+                and n.event.outcome == "complete"
+                and n.x is not None
+                and n.end_x is not None
+                and n.end_y is not None
+                and enters_final_third(n.x, n.end_x)
+            ):
                 entries[channel_of(n.end_y)] += 1
         total = sum(entries.values())
         for channel in CHANNELS:
@@ -532,19 +569,35 @@ def _half_only_signals(
 
         per_player: dict[str, list[float]] = defaultdict(list)
         for n in mine:
-            if (n.event.type is EventType.PASS and n.event.outcome == "complete"
-                    and n.event.player_id and n.end_x is not None):  # fmt: skip
+            if (
+                n.event.type is EventType.PASS
+                and n.event.outcome == "complete"
+                and n.event.player_id
+                and n.end_x is not None
+            ):
                 per_player[n.event.player_id].append(_difficulty(n, meta, tracking))
         for pid, values in sorted(per_player.items()):
             if len(values) >= MIN_PLAYER_PASSES:
                 q = player_qualifier(pid)
                 b.add("pass_difficulty", _mean(values), "rating", half, team, q, pid)
-                b.add("difficult_passes", sum(v >= DIFFICULT_PASS for v in values), "count",
-                      half, team, q, pid)  # fmt: skip
+                b.add(
+                    "difficult_passes",
+                    sum(v >= DIFFICULT_PASS for v in values),
+                    "count",
+                    half,
+                    team,
+                    q,
+                    pid,
+                )
 
         shots = [n for n in mine if n.event.type is EventType.SHOT and n.event.speed_kmh]
-        b.add("fast_shots", sum(n.event.speed_kmh > FAST_SHOT_KMH for n in shots),  # type: ignore[operator]
-              "count", half, team)  # fmt: skip
+        b.add(
+            "fast_shots",
+            sum(n.event.speed_kmh > FAST_SHOT_KMH for n in shots),  # type: ignore[operator]
+            "count",
+            half,
+            team,
+        )
         fastest: dict[str, float] = {}
         for n in shots:
             pid, speed = n.event.player_id, n.event.speed_kmh
@@ -574,8 +627,9 @@ def _team_frame_positions(
 def _tracking_signals(
     b: _Builder, scope: _Scope, tracking: _Tracking, meta: MatchMetadata, gk: set[str]
 ) -> None:
-    snaps = [s for s in tracking.snaps
-             if s.period == scope.period and scope.start <= s.t <= scope.end]  # fmt: skip
+    snaps = [
+        s for s in tracking.snaps if s.period == scope.period and scope.start <= s.t <= scope.end
+    ]
     for team in (meta.home.code, meta.away.code):
         lines, widths = [], []
         for s in snaps:
@@ -589,9 +643,10 @@ def _tracking_signals(
         b.add("def_line_height", _mean(lines), "m", scope, team)
         b.add("team_width", _mean(widths), "m", scope, team)
         sprints = sum(
-            count for pid, count in _sprint_efforts(tracking, scope).items()
+            count
+            for pid, count in _sprint_efforts(tracking, scope).items()
             if pid.startswith(team + "-")
-        )  # fmt: skip
+        )
         if snaps:
             b.add("sprints", sprints, "count", scope, team)
 

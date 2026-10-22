@@ -4,7 +4,7 @@
 
 Second Act is a multi-agent system that turns a live stream of synthetic football events into explainable match intelligence. Its centrepiece is a half-time briefing that predicts each manager's adjustments as measurable tests, then confirms or rejects them on screen during the second half. Built for the Microsoft × Premier League *Inside the Game* hackathon. See [PRD.md](PRD.md).
 
-> Status: milestones M1 (scaffold, schemas, synthetic data, Foundry connectivity) and M2 (analytics) are done. The full README arrives in M6.
+> Status: M1 (scaffold, schemas, synthetic data, Foundry connectivity), M2 (analytics) and M3 (half-time briefing with verification) are done. The full README arrives in M6.
 
 ## Quick start (offline)
 
@@ -32,3 +32,12 @@ Three seeded matches between two fictional clubs, Harbour Town and Kestrel Athle
 ## Analytics
 
 `second_act.analytics.compute_signals` computes every signal in PRD section 7, each with a stable ID such as `sig-channel_entries-HAR-left-p1w4`, per five-minute window and per half. It uses no model calls. Definitions and formulas, including xG, pass difficulty and the control index, are in [docs/formulas.md](docs/formulas.md).
+
+## Half-time briefing
+
+At the half-time whistle a Microsoft Agent Framework workflow runs. The tactician, on a Foundry model, drafts the briefing: what's working for each team, plus predicted adjustments written as measurable tests. The verifier rejects any draft whose numbers can't be traced to a cited signal or whose claims its evidence doesn't support. Rejected drafts are retried or replaced by a template built directly from the signals. See [docs/agents.md](docs/agents.md).
+
+```bash
+second-act-halftime m-001            # online (Foundry)
+second-act-halftime m-001 --offline  # no model calls
+```

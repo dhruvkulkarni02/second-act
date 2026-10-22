@@ -32,3 +32,5 @@ class Prediction(BaseModel):
     threshold_pct: float = Field(gt=0, le=100)
     evaluate_after_minute: int = Field(ge=45, le=90)
     status: PredictionStatus = PredictionStatus.OPEN
+    # Extension: first-half signals that motivate the prediction.
+    evidence: list[str] = Field(default_factory=list)
