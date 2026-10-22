@@ -1,0 +1,26 @@
+[
+  {
+    "match_id": "m-001",
+    "title": "Harbour Town v Kestrel Athletic",
+    "home": "HAR",
+    "away": "KES",
+    "venue": "Dockside Park, Harbour Town",
+    "kickoff": "2026-10-24T15:00:00+01:00"
+  },
+  {
+    "match_id": "m-002",
+    "title": "Kestrel Athletic v Harbour Town",
+    "home": "KES",
+    "away": "HAR",
+    "venue": "Ridgeway Stadium, Kestrel",
+    "kickoff": "2026-11-07T17:30:00+00:00"
+  },
+  {
+    "match_id": "m-003",
+    "title": "Harbour Town v Kestrel Athletic (reverse fixture)",
+    "home": "HAR",
+    "away": "KES",
+    "venue": "Dockside Park, Harbour Town",
+    "kickoff": "2027-02-13T15:00:00+00:00"
+  }
+]

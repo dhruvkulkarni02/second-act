@@ -1,0 +1,57 @@
+# Demo match. The story comes from the tactics below; the seed was chosen by
+# `second-act-generate find-seed m-001` as the first seed whose sampled
+# events pass every demo story check (see sim/story.py and docs/generator.md).
+match_id: m-001
+title: Harbour Town v Kestrel Athletic
+description: >
+  Harbour press high and overload the left channel; Kestrel lose the ball in
+  their own third. At half-time Kestrel switch to a back five and drop their
+  holding midfielder deeper. The back five cuts Harbour's left-side entries;
+  the deeper pivot barely changes how often Kestrel lose the ball under pressure.
+seed: 118
+home: HAR
+away: KES
+venue: Dockside Park, Harbour Town
+kickoff: "2026-10-24T15:00:00+01:00"
+stoppage_s: {1: 140, 2: 250}
+teams:
+  HAR:
+    tactics:
+      press_height: 0.88
+      press_intensity: 0.78
+      def_line: 36
+      width: 1.08
+      tempo: 0.55
+      channel_weights: {left: 0.62, centre: 0.22, right: 0.16}
+      buildup_security: 0.62
+      wide_block: 0.12
+      central_block: 0.22
+      finishing: 1.0
+    substitutions:
+      - {at: {period: 2, minute: 66}, player_off: 7, player_on: 14}
+      - {at: {period: 2, minute: 77}, player_off: 9, player_on: 19}
+  KES:
+    tactics:
+      press_height: 0.35
+      press_intensity: 0.38
+      def_line: 26
+      width: 0.92
+      tempo: 0.45
+      channel_weights: {left: 0.30, centre: 0.38, right: 0.32}
+      buildup_security: 0.18
+      wide_block: 0.10
+      central_block: 0.25
+      finishing: 1.0
+    substitutions:
+      - {at: {period: 2, minute: 45}, player_off: 11, player_on: 15}
+      - {at: {period: 2, minute: 71}, player_off: 10, player_on: 16}
+      - {at: {period: 2, minute: 82}, player_off: 7, player_on: 17}
+    phases:
+      - start: {period: 2, minute: 45}
+        label: Back five and a deeper pivot
+        formation: 5-3-2
+        lineup: {GK: 1, LWB: 3, LCB: 4, CB: 15, RCB: 5, RWB: 2, LCM: 10, DM: 14, RCM: 8, LST: 9, RST: 7}
+        tactics:
+          pivot_drop: 7
+          buildup_security: 0.21
+          tempo: 0.62

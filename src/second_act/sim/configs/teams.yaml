@@ -1,0 +1,55 @@
+# Fictional clubs and squads. Any resemblance to real people is coincidental.
+HAR:
+  name: Harbour Town
+  short_name: Harbour
+  primary_colour: "#0B4F8A"
+  secondary_colour: "#F2C14E"
+  manager: Ines Kavanagh
+  default_formation: 4-3-3
+  default_lineup: {GK: 1, LB: 3, LCB: 5, RCB: 4, RB: 2, DM: 6, LCM: 10, RCM: 8, LW: 11, ST: 9, RW: 7}
+  squad:
+    - {number: 1, name: Tomas Arrandale, position: GK, pace_kmh: 25.5}
+    - {number: 2, name: Callum Reyes-Hart, position: DF, pace_kmh: 32.4}
+    - {number: 3, name: Nico Fairbairn, position: DF, pace_kmh: 33.1}
+    - {number: 4, name: Jonah Mbeki-Lund, position: DF, pace_kmh: 30.2}
+    - {number: 5, name: Rafael Ostrander, position: DF, pace_kmh: 29.6}
+    - {number: 6, name: Mateo Quillan, position: MF, pace_kmh: 29.8}
+    - {number: 7, name: Felix Marrow, position: FW, pace_kmh: 33.6}
+    - {number: 8, name: Liam Okonkwo-Vale, position: MF, pace_kmh: 31.0}
+    - {number: 9, name: Andre Solheimsen, position: FW, pace_kmh: 31.8}
+    - {number: 10, name: Sami Haddouri, position: MF, pace_kmh: 30.5}
+    - {number: 11, name: Yusuf Kerrigan, position: FW, pace_kmh: 34.4}
+    - {number: 13, name: Owen Pritchley, position: GK, pace_kmh: 25.0}
+    - {number: 14, name: Ruben Teague, position: FW, pace_kmh: 33.0}
+    - {number: 15, name: Elias Brannagh, position: DF, pace_kmh: 29.9}
+    - {number: 16, name: Ivo Castellane, position: MF, pace_kmh: 30.1}
+    - {number: 18, name: Danny Whitlock, position: MF, pace_kmh: 30.8}
+    - {number: 19, name: Marcus Delacroix-Penn, position: FW, pace_kmh: 32.6}
+    - {number: 22, name: Kofi Adeyemi-Ross, position: DF, pace_kmh: 31.7}
+KES:
+  name: Kestrel Athletic
+  short_name: Kestrel
+  primary_colour: "#B3261E"
+  secondary_colour: "#F5F5F0"
+  manager: Gregor Molina
+  default_formation: 4-3-3
+  default_lineup: {GK: 1, LB: 3, LCB: 4, RCB: 5, RB: 2, DM: 14, LCM: 10, RCM: 8, LW: 11, ST: 9, RW: 7}
+  squad:
+    - {number: 1, name: Bram Oyelaran, position: GK, pace_kmh: 25.2}
+    - {number: 2, name: Theo Lindqvist-Amos, position: DF, pace_kmh: 32.0}
+    - {number: 3, name: Aaron Pell, position: DF, pace_kmh: 31.5}
+    - {number: 4, name: Gideon Varga, position: DF, pace_kmh: 29.4}
+    - {number: 5, name: Moses Achterberg, position: DF, pace_kmh: 30.1}
+    - {number: 7, name: Isak Thornbury, position: FW, pace_kmh: 33.8}
+    - {number: 8, name: Joel Hartigan, position: MF, pace_kmh: 30.6}
+    - {number: 9, name: Kwame Ashdown, position: FW, pace_kmh: 32.9}
+    - {number: 10, name: Dario Venturelli, position: MF, pace_kmh: 29.7}
+    - {number: 11, name: Pablo Rennick, position: FW, pace_kmh: 33.2}
+    - {number: 12, name: Stefan Halvorsk, position: GK, pace_kmh: 24.8}
+    - {number: 14, name: Emre Kalinski, position: MF, pace_kmh: 29.5}
+    - {number: 15, name: Luca Brennan-Sato, position: DF, pace_kmh: 30.4}
+    - {number: 16, name: Kit Amberley, position: MF, pace_kmh: 31.2}
+    - {number: 17, name: Jasper Coultrane, position: FW, pace_kmh: 33.5}
+    - {number: 19, name: Tiago Merriman, position: FW, pace_kmh: 32.2}
+    - {number: 20, name: Noah Fenwick-Diallo, position: MF, pace_kmh: 30.9}
+    - {number: 23, name: Patrice Lomond, position: DF, pace_kmh: 31.1}

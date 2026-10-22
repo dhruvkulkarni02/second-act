@@ -1,0 +1,45 @@
+# Control match: roles reversed. Kestrel host, press high and attack down the
+# right; Harbour sit in a mid block and change nothing at the break.
+match_id: m-002
+title: Kestrel Athletic v Harbour Town
+description: >
+  Kestrel press high and favour the right channel all game. Harbour play a
+  4-4-2 mid block and make only like-for-like substitutions.
+seed: 2027
+home: KES
+away: HAR
+venue: Ridgeway Stadium, Kestrel
+kickoff: "2026-11-07T17:30:00+00:00"
+stoppage_s: {1: 90, 2: 210}
+teams:
+  KES:
+    formation: 4-2-3-1
+    lineup: {GK: 1, LB: 3, LCB: 4, RCB: 5, RB: 2, LDM: 14, RDM: 8, LW: 11, AM: 10, RW: 7, ST: 9}
+    tactics:
+      press_height: 0.80
+      press_intensity: 0.70
+      def_line: 34
+      width: 1.02
+      tempo: 0.60
+      channel_weights: {left: 0.20, centre: 0.28, right: 0.52}
+      buildup_security: 0.50
+      wide_block: 0.15
+      central_block: 0.25
+    substitutions:
+      - {at: {period: 2, minute: 63}, player_off: 11, player_on: 17}
+      - {at: {period: 2, minute: 75}, player_off: 10, player_on: 16}
+  HAR:
+    formation: 4-4-2
+    lineup: {GK: 1, LB: 3, LCB: 5, RCB: 4, RB: 2, LM: 11, LCM: 10, RCM: 8, RM: 7, LST: 9, RST: 14}
+    tactics:
+      press_height: 0.50
+      press_intensity: 0.50
+      def_line: 30
+      width: 0.98
+      tempo: 0.50
+      channel_weights: {left: 0.34, centre: 0.33, right: 0.33}
+      buildup_security: 0.40
+      wide_block: 0.18
+      central_block: 0.28
+    substitutions:
+      - {at: {period: 2, minute: 70}, player_off: 14, player_on: 19}
