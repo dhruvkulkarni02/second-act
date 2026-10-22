@@ -22,3 +22,18 @@ jobs:
           .venv/bin/ruff format --check src tests scripts
       - name: Test (offline, no model calls)
         run: .venv/bin/pytest
+
+  docker:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build image
+        run: docker build -t second-act:ci .
+      - name: Smoke test the container (offline)
+        run: |
+          docker run -d --name sa -p 8000:8000 -e SECOND_ACT_OFFLINE=true second-act:ci
+          for i in $(seq 1 30); do curl -sf localhost:8000/api/health && break; sleep 1; done
+          curl -sf localhost:8000/api/matches | grep -q m-001
+          curl -sf localhost:8000/ | grep -q "Second Act"
+          docker logs sa | tail -5

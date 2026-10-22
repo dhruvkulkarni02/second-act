@@ -1,0 +1,174 @@
+{
+ "key": "m-001-recap-3c0aac2c9aab1909",
+ "briefing": {
+  "headline": "Harbour\u2019s high press and left-sided attack lost momentum after the break; Kestrel recovered territory and levelled the game",
+  "headline_evidence": [
+   "sig-ppda_wmean-HAR-p1",
+   "sig-ppda_wmean-HAR-p2",
+   "sig-channel_share-HAR-left-p1",
+   "sig-channel_share-HAR-left-p2",
+   "sig-possession_wmean-KES-p1",
+   "sig-possession_wmean-KES-p2",
+   "sig-goals-HAR-p1",
+   "sig-goals-KES-p2"
+  ],
+  "first_half": [
+   {
+    "text": "Harbour controlled territory by attacking strongly down the left and pressing high, shown by a dominant left-channel share of 70.6% and frequent left-channel entries (2.67 per_window), plus an aggressive PPDA of 3.3.",
+    "evidence": [
+     "sig-channel_share-HAR-left-p1",
+     "sig-channel_entries_wmean-HAR-left-p1",
+     "sig-ppda_wmean-HAR-p1"
+    ]
+   },
+   {
+    "text": "That control translated into real offensive output: more final-third entries (3.78 per_window) and xG (0.75), and they converted one of those chances (1 goal in the first half).",
+    "evidence": [
+     "sig-final_third_entries_wmean-HAR-p1",
+     "sig-xg-HAR-p1",
+     "sig-goals-HAR-p1"
+    ]
+   },
+   {
+    "text": "Kestrel were pushed wide and struggled to win the ball high, registering few high regains (0.33 per_window) and limited attacking entries overall (right-channel entries 0.78 per_window).",
+    "evidence": [
+     "sig-high_regains_wmean-KES-p1",
+     "sig-channel_entries_wmean-KES-right-p1"
+    ]
+   }
+  ],
+  "changes": [
+   {
+    "text": "Kestrel clawed back territory after the break: their possession rose slightly to 45.4% (from 44.7%) and their centre and right-channel entries increased (centre 0.44\u21921.33 per_window, right 0.78\u21921 per_window), giving them more access through central and right channels.",
+    "evidence": [
+     "sig-possession_wmean-KES-p1",
+     "sig-possession_wmean-KES-p2",
+     "sig-channel_entries_wmean-KES-centre-p1",
+     "sig-channel_entries_wmean-KES-centre-p2",
+     "sig-channel_entries_wmean-KES-right-p1",
+     "sig-channel_entries_wmean-KES-right-p2"
+    ]
+   },
+   {
+    "text": "Harbour eased their press and lost some attacking momentum: their PPDA rose from 3.3 to 4.4 (a 33% increase) and left-channel activity dropped (left entries 2.67\u21921.56 per_window; left share 70.6%\u219253.8%), reducing the dominance they showed early on.",
+    "evidence": [
+     "sig-ppda_wmean-HAR-p1",
+     "sig-ppda_wmean-HAR-p2",
+     "sig-channel_entries_wmean-HAR-left-p1",
+     "sig-channel_entries_wmean-HAR-left-p2",
+     "sig-channel_share-HAR-left-p1",
+     "sig-channel_share-HAR-left-p2"
+    ]
+   },
+   {
+    "text": "Kestrel ramped their final-third threat: their final-third entries rose from 1.33 to 2.56 per_window and xG went from 0.04 to 1.01, producing a productive second half.",
+    "evidence": [
+     "sig-final_third_entries_wmean-KES-p1",
+     "sig-final_third_entries_wmean-KES-p2",
+     "sig-xg-KES-p1",
+     "sig-xg-KES-p2"
+    ]
+   }
+  ],
+  "predictions": [
+   {
+    "prediction_id": "p-HAR-1",
+    "status": "contradicted",
+    "text": "Prediction that Harbour would protect their left and reduce Kestrel\u2019s right access was contradicted: Kestrel's right-channel entries rose from 0.78 to 1 per_window after the break.",
+    "evidence": [
+     "sig-channel_entries_wmean-KES-right-p1",
+     "sig-channel_entries_wmean-KES-right-p2"
+    ]
+   },
+   {
+    "prediction_id": "p-HAR-2",
+    "status": "confirmed",
+    "text": "Prediction that Harbour\u2019s PPDA would rise as they eased pressing was confirmed: PPDA rose from 3.3 to 4.4 (a 33% increase).",
+    "evidence": [
+     "sig-ppda_wmean-HAR-p1",
+     "sig-ppda_wmean-HAR-p2"
+    ]
+   },
+   {
+    "prediction_id": "p-HAR-3",
+    "status": "contradicted",
+    "text": "Prediction that Harbour would maintain or increase final-third entries was contradicted: their final-third entries fell from 3.78 to 2.89 per_window after the break.",
+    "evidence": [
+     "sig-final_third_entries_wmean-HAR-p1",
+     "sig-final_third_entries_wmean-HAR-p2"
+    ]
+   },
+   {
+    "prediction_id": "p-KES-1",
+    "status": "confirmed",
+    "text": "Prediction that Kestrel would force down Harbour\u2019s left-channel access was confirmed: Harbour's left-channel entries dropped from 2.67 to 1.56 per_window (a 42% decrease).",
+    "evidence": [
+     "sig-channel_entries_wmean-HAR-left-p1",
+     "sig-channel_entries_wmean-HAR-left-p2"
+    ]
+   },
+   {
+    "prediction_id": "p-KES-2",
+    "status": "contradicted",
+    "text": "Prediction that Kestrel dropping a midfielder would cut Harbour\u2019s high regains was contradicted: Harbour's high regains per_window fell only from 2.11 to 2, a 5% change, far short of the predicted drop.",
+    "evidence": [
+     "sig-high_regains_wmean-HAR-p1",
+     "sig-high_regains_wmean-HAR-p2"
+    ]
+   },
+   {
+    "prediction_id": "p-KES-3",
+    "status": "contradicted",
+    "text": "Prediction that Kestrel would significantly increase overall possession was contradicted: their possession rose only from 44.7 to 45.4% (a 2% change), well below the forecasted 10% rise.",
+    "evidence": [
+     "sig-possession_wmean-KES-p1",
+     "sig-possession_wmean-KES-p2"
+    ]
+   }
+  ],
+  "result": [
+   {
+    "text": "Kestrel\u2019s second-half territorial recovery and increased final-third entries produced higher xG and ultimately an equaliser: Kestrel\u2019s final-third entries rose to 2.56 per_window and xG to 1.01, and they scored in the second half.",
+    "evidence": [
+     "sig-final_third_entries_wmean-KES-p2",
+     "sig-xg-KES-p2",
+     "sig-goals-KES-p2"
+    ]
+   },
+   {
+    "text": "Harbour\u2019s early control delivered an opening goal thanks to left-sided dominance and high pressing, but easing their press and a drop in left-channel attacks reduced their threat after the break (final-third entries fell to 2.89 per_window), leaving them with a draw.",
+    "evidence": [
+     "sig-goals-HAR-p1",
+     "sig-channel_share-HAR-left-p1",
+     "sig-ppda_wmean-HAR-p1",
+     "sig-final_third_entries_wmean-HAR-p2"
+    ]
+   },
+   {
+    "text": "Overall the match ended level as Kestrel\u2019s tactical adjustments regained enough territory and chance volume to offset Harbour\u2019s first-half advantage, reflected in the 1-1 final scoreline.",
+    "evidence": [
+     "sig-possession_wmean-KES-p2",
+     "sig-possession_wmean-HAR-p2",
+     "sig-goals-HAR-p1",
+     "sig-goals-KES-p2"
+    ]
+   }
+  ],
+  "source": "model",
+  "attempts": 2,
+  "fallback_reason": null,
+  "removed_claims": []
+ },
+ "log": {
+  "drafts": 4,
+  "rejections": 2,
+  "issues_caught": 2,
+  "fallbacks": 0,
+  "claims_removed": 0,
+  "model_calls": 17,
+  "tokens_in": 28433,
+  "tokens_out": 10956,
+  "model_latency_s": 120.73,
+  "workflow_latency_s": 45.45
+ }
+}

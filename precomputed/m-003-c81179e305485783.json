@@ -1,0 +1,228 @@
+{
+ "key": "m-003-c81179e305485783",
+ "briefing": {
+  "headline": "Harbour Town dominate through intense high press and central overload; Kestrel must stop central losses and high turnovers",
+  "headline_evidence": [
+   "sig-ppda-HAR-p1",
+   "sig-high_regains-HAR-p1",
+   "sig-channel_share-HAR-centre-p1",
+   "sig-xg-HAR-p1",
+   "sig-possession-HAR-p1"
+  ],
+  "teams": [
+   {
+    "team": "HAR",
+    "working": [
+     {
+      "text": "Harbour press very aggressively (low PPDA) and win the ball high, creating sustained attacking pressure.",
+      "evidence": [
+       "sig-ppda-HAR-p1",
+       "sig-turnover_height-HAR-p1",
+       "sig-high_regains-HAR-p1"
+      ]
+     },
+     {
+      "text": "They control the game and create chances: higher possession and xG than Kestrel with many final-third entries.",
+      "evidence": [
+       "sig-possession-HAR-p1",
+       "sig-final_third_entries-HAR-p1",
+       "sig-xg-HAR-p1"
+      ]
+     },
+     {
+      "text": "Most Harbour entries come through the centre, giving them a clear focal route to goal.",
+      "evidence": [
+       "sig-channel_share-HAR-centre-p1",
+       "sig-channel_entries-HAR-centre-p1"
+      ]
+     }
+    ],
+    "not_working": [
+     {
+      "text": "Their press intensity may be hard to sustain \u2014 PPDA is low now and could rise later if legs tire.",
+      "evidence": [
+       "sig-ppda-HAR-p1"
+      ]
+     },
+     {
+      "text": "Reliance on central attacks risks becoming predictable if Kestrel block the middle.",
+      "evidence": [
+       "sig-channel_share-HAR-centre-p1",
+       "sig-channel_entries-HAR-centre-p1"
+      ]
+     }
+    ],
+    "predictions": [
+     {
+      "prediction_id": "p-HAR-1",
+      "team": "HAR",
+      "claim": "Harbour will change where they attack to avoid predictability, increasing right-side final-third entries.",
+      "metric": "channel_entries",
+      "subject_team": "HAR",
+      "scope": {
+       "channel": "right"
+      },
+      "comparison": "second_half_window_mean_vs_first_half_mean",
+      "direction": "increase",
+      "threshold_pct": 40.0,
+      "evaluate_after_minute": 65,
+      "status": "open",
+      "evidence": [
+       "sig-channel_share-HAR-centre-p1",
+       "sig-channel_entries-HAR-right-p1"
+      ]
+     },
+     {
+      "prediction_id": "p-HAR-2",
+      "team": "HAR",
+      "claim": "Kavanagh will accept a slightly lower press intensity as the half goes on, so Harbour's PPDA will rise.",
+      "metric": "ppda",
+      "subject_team": "HAR",
+      "scope": {},
+      "comparison": "second_half_window_mean_vs_first_half_mean",
+      "direction": "increase",
+      "threshold_pct": 20.0,
+      "evaluate_after_minute": 65,
+      "status": "open",
+      "evidence": [
+       "sig-ppda-HAR-p1"
+      ]
+     },
+     {
+      "prediction_id": "p-HAR-3",
+      "team": "HAR",
+      "claim": "Harbour will keep forcing turnovers high up to maintain danger, so Kestrel's central entries should fall.",
+      "metric": "channel_entries",
+      "subject_team": "KES",
+      "scope": {
+       "channel": "centre"
+      },
+      "comparison": "second_half_window_mean_vs_first_half_mean",
+      "direction": "decrease",
+      "threshold_pct": 30.0,
+      "evaluate_after_minute": 65,
+      "status": "open",
+      "evidence": [
+       "sig-high_regains-HAR-p1",
+       "sig-channel_entries-KES-centre-p1"
+      ]
+     }
+    ]
+   },
+   {
+    "team": "KES",
+    "working": [
+     {
+      "text": "Kestrel have struggled to press or win the ball high, conceding many high turnovers to Harbour.",
+      "evidence": [
+       "sig-ppda-KES-p1",
+       "sig-high_regains-KES-p1",
+       "sig-turnover_height-KES-p1"
+      ]
+     },
+     {
+      "text": "They still play more of their centre entries through the middle when they do reach the final third.",
+      "evidence": [
+       "sig-channel_share-KES-centre-p1",
+       "sig-channel_entries-KES-centre-p1"
+      ]
+     },
+     {
+      "text": "Kestrel are behind in control and creation: lower control index and xG than Harbour.",
+      "evidence": [
+       "sig-control_index-KES-p1",
+       "sig-xg-KES-p1"
+      ]
+     }
+    ],
+    "not_working": [
+     {
+      "text": "Their low turnover height shows they rarely regain possession in advanced areas, leaving them vulnerable.",
+      "evidence": [
+       "sig-turnover_height-KES-p1",
+       "sig-high_regains-KES-p1"
+      ]
+     },
+     {
+      "text": "Their central vulnerability is costly: Harbour exploited the middle frequently.",
+      "evidence": [
+       "sig-channel_share-HAR-centre-p1",
+       "sig-channel_entries-HAR-centre-p1"
+      ]
+     }
+    ],
+    "predictions": [
+     {
+      "prediction_id": "p-KES-1",
+      "team": "KES",
+      "claim": "Gregor Molina will sit a midfielder deeper to reduce Harbour's high wins, cutting Harbour high regains.",
+      "metric": "high_regains",
+      "subject_team": "HAR",
+      "scope": {},
+      "comparison": "second_half_window_mean_vs_first_half_mean",
+      "direction": "decrease",
+      "threshold_pct": 30.0,
+      "evaluate_after_minute": 65,
+      "status": "open",
+      "evidence": [
+       "sig-high_regains-HAR-p1",
+       "sig-turnover_height-HAR-p1"
+      ]
+     },
+     {
+      "prediction_id": "p-KES-2",
+      "team": "KES",
+      "claim": "Kestrel will try to crowd Harbour's centre to blunt their central entries, lowering Harbour centre channel entries.",
+      "metric": "channel_entries",
+      "subject_team": "HAR",
+      "scope": {
+       "channel": "centre"
+      },
+      "comparison": "second_half_window_mean_vs_first_half_mean",
+      "direction": "decrease",
+      "threshold_pct": 30.0,
+      "evaluate_after_minute": 65,
+      "status": "open",
+      "evidence": [
+       "sig-channel_share-HAR-centre-p1",
+       "sig-channel_entries-HAR-centre-p1"
+      ]
+     },
+     {
+      "prediction_id": "p-KES-3",
+      "team": "KES",
+      "claim": "If they push more players higher to chase the game, Kestrel's possession share should increase.",
+      "metric": "possession",
+      "subject_team": "KES",
+      "scope": {},
+      "comparison": "second_half_window_mean_vs_first_half_mean",
+      "direction": "increase",
+      "threshold_pct": 10.0,
+      "evaluate_after_minute": 65,
+      "status": "open",
+      "evidence": [
+       "sig-possession-KES-p1",
+       "sig-final_third_entries-KES-p1"
+      ]
+     }
+    ]
+   }
+  ],
+  "source": "model",
+  "attempts": 2,
+  "fallback_reason": null,
+  "removed_claims": []
+ },
+ "log": {
+  "drafts": 2,
+  "rejections": 0,
+  "issues_caught": 0,
+  "fallbacks": 0,
+  "claims_removed": 0,
+  "model_calls": 4,
+  "tokens_in": 15749,
+  "tokens_out": 3880,
+  "model_latency_s": 35.98,
+  "workflow_latency_s": 19.84
+ }
+}

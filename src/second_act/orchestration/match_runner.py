@@ -33,7 +33,7 @@ from second_act.agents.tactician import template_phrases
 from second_act.agents.watcher import WATCHER_INSTRUCTIONS, ModelExplainer, Watcher, final_notes
 from second_act.analytics.windows import WINDOW_S, WINDOWS_PER_PERIOD, period_time, window_of
 from second_act.orchestration.agent_log import AgentLog
-from second_act.orchestration.cache import BriefingCache
+from second_act.orchestration.cache import BriefingCache, briefing_key
 from second_act.orchestration.foundry import FoundrySettings, build_chat_client
 from second_act.orchestration.halftime import run_halftime
 from second_act.orchestration.recap import run_recap
@@ -44,6 +44,7 @@ from second_act.state.match_state import MatchState
 
 Emit = Callable[[str, dict], Awaitable[None]]
 Pace = Callable[[int, float], Awaitable[None]]
+Hold = Callable[[str], Awaitable[None]]
 
 EVENT_FIELDS = (
     "event_id",
@@ -62,6 +63,10 @@ EVENT_FIELDS = (
 
 
 async def _no_pace(period: int, t: float) -> None:
+    return None
+
+
+async def _no_hold(phase: str) -> None:
     return None
 
 
@@ -88,12 +93,14 @@ class MatchRunner:
         log: AgentLog,
         emit: Emit,
         pace: Pace = _no_pace,
+        hold: Hold = _no_hold,
         cache: BriefingCache | None = None,
         online_overrides: dict[str, Any] | None = None,
     ) -> None:
         self.events, self.meta = list(events), meta
         self.snapshots = list(snapshots or [])
         self.offline, self.log, self.emit, self.pace, self.cache = offline, log, emit, pace, cache
+        self.hold = hold
         self.state = MatchState(meta=meta)
         self.outputs = MatchOutputs()
         names = {p.player_id: p.name for t in (meta.home, meta.away) for p in t.squad}
@@ -179,6 +186,22 @@ class MatchRunner:
             if changes or final:
                 await self._emit_predictions()
 
+    async def _cached_variants(self, kind: str, model, make):
+        """Presenter variants, reused from the cache for an identical online run."""
+        if self.offline or self.cache is None:
+            return await make()
+        settings = FoundrySettings.from_env()
+        key = briefing_key(
+            self.state, settings.model, settings.reasoning_effort, kind=f"{kind}-variants"
+        )
+        cached = self.cache.get_json(key)
+        if cached is not None:
+            self.log.record("presenter", "cache_hit", task=kind, key=key)
+            return [model.model_validate(v) for v in cached]
+        variants = await make()
+        self.cache.put_json(key, [v.model_dump(mode="json") for v in variants])
+        return variants
+
     async def _drain(self) -> None:
         if self._tasks:
             await asyncio.gather(*self._tasks)
@@ -202,7 +225,11 @@ class MatchRunner:
                 "briefing",
                 {"status": "partial", "variants": [v.model_dump(mode="json") for v in first]},
             )
-        variants = await self.presenter.briefing_variants(briefing, state.signals, template)
+        variants = await self._cached_variants(
+            "halftime",
+            BriefingVariant,
+            lambda: self.presenter.briefing_variants(briefing, state.signals, template),
+        )
         self.outputs.briefing, self.outputs.briefing_status = variants, "ready"
         await self.emit(
             "briefing",
@@ -210,12 +237,15 @@ class MatchRunner:
                 "status": "ready",
                 "source": briefing.source,
                 "attempts": briefing.attempts,
+                "fallback_reason": briefing.fallback_reason,
+                "offline": self.offline,
                 "removed_claims": briefing.removed_claims,
                 "variants": [v.model_dump(mode="json") for v in variants],
             },
         )
         await self._emit_cues(self.presenter.briefing_cues(variants, state.minute))
         await self._emit_predictions()
+        await self.hold("halftime")
 
     async def _fulltime(self) -> None:
         state = self.state
@@ -226,8 +256,12 @@ class MatchRunner:
         await self.emit("status", {"phase": "fulltime", "recap": "in_progress"})
         recap = await run_recap(state, offline=self.offline, log=self.log, cache=self.cache)
         template = template_recap_phrases(state) if recap.source == "template" else None
-        variants = await self.presenter.recap_variants(
-            recap, state.signals, template, state.predictions
+        variants = await self._cached_variants(
+            "recap",
+            RecapVariant,
+            lambda: self.presenter.recap_variants(
+                recap, state.signals, template, state.predictions
+            ),
         )
         self.outputs.recap, self.outputs.recap_status = variants, "ready"
         await self.emit(
@@ -236,6 +270,8 @@ class MatchRunner:
                 "status": "ready",
                 "source": recap.source,
                 "attempts": recap.attempts,
+                "fallback_reason": recap.fallback_reason,
+                "offline": self.offline,
                 "removed_claims": recap.removed_claims,
                 "variants": [v.model_dump(mode="json") for v in variants],
             },

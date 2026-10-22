@@ -60,3 +60,20 @@ class BriefingCache:
         payload = {"key": key, "briefing": briefing.model_dump(mode="json"), "log": summary}
         path.write_text(json.dumps(payload, indent=1) + "\n")
         return path
+
+    def get_json(self, key: str):
+        """A cached JSON payload (used for presenter variants), or None."""
+        path = self._path(key)
+        if not path.exists():
+            return None
+        try:
+            return json.loads(path.read_text())["payload"]
+        except (ValueError, KeyError):
+            return None
+
+    def put_json(self, key: str, payload) -> Path:
+        """Store a JSON payload under ``key``."""
+        self.directory.mkdir(parents=True, exist_ok=True)
+        path = self._path(key)
+        path.write_text(json.dumps({"key": key, "payload": payload}) + "\n")
+        return path
