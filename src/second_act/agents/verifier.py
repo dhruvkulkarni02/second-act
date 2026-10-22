@@ -84,6 +84,20 @@ def normalize_evidence(ids: Iterable[str]) -> list[str]:
 
 
 _COMMA_DECIMAL = re.compile(r"(?<=\d),(?=\d)")
+# Spelled-out quantities are numbers too ("three on target"). "one"/"uno"/"una" are left
+# out: in prose they are mostly not quantities ("one of their", "una de las").
+NUMBER_WORDS = {
+    "zero": 0, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6, "seven": 7, "eight": 8,
+    "nine": 9, "ten": 10, "eleven": 11, "twelve": 12, "thirteen": 13, "fourteen": 14,
+    "fifteen": 15, "sixteen": 16, "seventeen": 17, "eighteen": 18, "nineteen": 19,
+    "twenty": 20, "cero": 0, "dos": 2, "tres": 3, "cuatro": 4, "cinco": 5, "seis": 6,
+    "siete": 7, "ocho": 8, "nueve": 9, "diez": 10, "once": 11, "doce": 12, "trece": 13,
+    "catorce": 14, "quince": 15, "dieciséis": 16, "diecisiete": 17, "dieciocho": 18,
+    "diecinueve": 19, "veinte": 20,
+}  # fmt: skip
+_NUMBER_WORD = re.compile(r"\b(" + "|".join(NUMBER_WORDS) + r")\b", re.IGNORECASE)
+# "five minutes" is the window length, not a claim about the match.
+_WINDOW_PHRASE = re.compile(r"\b(five|cinco)[ -](minutes?|minutos?)\b", re.IGNORECASE)
 
 
 def numbers_in(text: str, decimal_comma: bool = False) -> list[float]:
@@ -94,7 +108,10 @@ def numbers_in(text: str, decimal_comma: bool = False) -> list[float]:
     cleaned = _IDENTIFIER.sub(" ", _FORMATION.sub(" ", text))
     if decimal_comma:  # Spanish: 70,6 means 70.6
         cleaned = _COMMA_DECIMAL.sub(".", cleaned)
-    return [float(m) for m in _NUMBER.findall(cleaned)]
+    numbers = [float(m) for m in _NUMBER.findall(cleaned)]
+    worded = _WINDOW_PHRASE.sub(" ", cleaned)
+    numbers += [float(NUMBER_WORDS[w.lower()]) for w in _NUMBER_WORD.findall(worded)]
+    return numbers
 
 
 def _round_half_up(value: float, digits: int) -> float:

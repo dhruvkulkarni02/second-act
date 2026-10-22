@@ -1,0 +1,172 @@
+{
+ "key": "m-003-recap-2bb2d6dae2ddb091",
+ "briefing": {
+  "headline": "Kestrel turn the tide after the break; Harbour\u2019s high press and central dominance ebb, game ends level",
+  "headline_evidence": [
+   "sig-field_tilt-HAR-p1",
+   "sig-field_tilt-HAR-p2",
+   "sig-possession_wmean-KES-p1",
+   "sig-possession_wmean-KES-p2",
+   "sig-goals-HAR-p1",
+   "sig-goals-KES-p2"
+  ],
+  "first_half": [
+   {
+    "text": "Harbour dominated the centre and won the ball high, converting that control into chances and two first-half goals.",
+    "evidence": [
+     "sig-channel_entries_wmean-HAR-centre-p1",
+     "sig-high_regains_wmean-HAR-p1",
+     "sig-goals-HAR-p1",
+     "sig-xg-HAR-p1"
+    ]
+   },
+   {
+    "text": "Kestrel had limited territorial control, low high regains and fewer final-third entries, struggling to threaten.",
+    "evidence": [
+     "sig-possession_wmean-KES-p1",
+     "sig-high_regains_wmean-KES-p1",
+     "sig-final_third_entries_wmean-KES-p1",
+     "sig-xg-KES-p1"
+    ]
+   },
+   {
+    "text": "The field tilt heavily favoured Harbour, reflecting sustained attacking pressure across the middle.",
+    "evidence": [
+     "sig-field_tilt-HAR-p1",
+     "sig-channel_share-HAR-centre-p1",
+     "sig-final_third_entries-HAR-p1"
+    ]
+   }
+  ],
+  "changes": [
+   {
+    "text": "Kestrel shifted to regain central presence and increased centre-channel entries after the break.",
+    "evidence": [
+     "sig-channel_entries_wmean-KES-centre-p1",
+     "sig-channel_entries_wmean-KES-centre-p2",
+     "sig-channel_share-KES-centre-p2"
+    ]
+   },
+   {
+    "text": "Harbour\u2019s intensity and high wins dropped: their high regains and turnover height fell meaningfully in the second half.",
+    "evidence": [
+     "sig-high_regains_wmean-HAR-p1",
+     "sig-high_regains_wmean-HAR-p2",
+     "sig-turnover_height-HAR-p1",
+     "sig-turnover_height-HAR-p2"
+    ]
+   },
+   {
+    "text": "Possession and final-third entries swung to Kestrel, who produced more attacking activity and xG after the break.",
+    "evidence": [
+     "sig-possession_wmean-KES-p1",
+     "sig-possession_wmean-KES-p2",
+     "sig-final_third_entries_wmean-KES-p1",
+     "sig-final_third_entries_wmean-KES-p2",
+     "sig-xg-KES-p1",
+     "sig-xg-KES-p2"
+    ]
+   }
+  ],
+  "predictions": [
+   {
+    "prediction_id": "p-HAR-1",
+    "status": "contradicted",
+    "text": "Harbour would force Kestrel wide and Kestrel\u2019s centre entries would fall by at least 30% \u2014 instead Kestrel\u2019s centre entries rose.",
+    "evidence": [
+     "sig-channel_entries_wmean-KES-centre-p1",
+     "sig-channel_entries_wmean-KES-centre-p2"
+    ]
+   },
+   {
+    "prediction_id": "p-HAR-2",
+    "status": "contradicted",
+    "text": "Harbour would attack the right more and raise right-channel entries by at least 40% \u2014 instead Harbour\u2019s right-channel entries fell.",
+    "evidence": [
+     "sig-channel_entries_wmean-HAR-right-p1",
+     "sig-channel_entries_wmean-HAR-right-p2"
+    ]
+   },
+   {
+    "prediction_id": "p-HAR-3",
+    "status": "contradicted",
+    "text": "Harbour\u2019s PPDA would increase by at least 20% as their press waned \u2014 the PPDA rose only slightly, well under 20%.",
+    "evidence": [
+     "sig-ppda_wmean-HAR-p1",
+     "sig-ppda_wmean-HAR-p2"
+    ]
+   },
+   {
+    "prediction_id": "p-KES-1",
+    "status": "confirmed",
+    "text": "Kestrel would sit compact centrally and cut Harbour\u2019s central entries by at least 30% \u2014 Harbour\u2019s centre entries dropped around 40%.",
+    "evidence": [
+     "sig-channel_entries_wmean-HAR-centre-p1",
+     "sig-channel_entries_wmean-HAR-centre-p2"
+    ]
+   },
+   {
+    "prediction_id": "p-KES-2",
+    "status": "confirmed",
+    "text": "Gregor Molina would drop deeper and Harbour\u2019s high regains would fall by at least 30% \u2014 Harbour\u2019s high regains per-window fell by 50%.",
+    "evidence": [
+     "sig-high_regains_wmean-HAR-p1",
+     "sig-high_regains_wmean-HAR-p2"
+    ]
+   },
+   {
+    "prediction_id": "p-KES-3",
+    "status": "confirmed",
+    "text": "Kestrel would lift possession by at least 10% as they pushed forward \u2014 their possession rose by 12%.",
+    "evidence": [
+     "sig-possession_wmean-KES-p1",
+     "sig-possession_wmean-KES-p2"
+    ]
+   }
+  ],
+  "result": [
+   {
+    "text": "Kestrel\u2019s second-half tactical shift produced more possession, final-third entries and xG, enabling them to score twice and level the match.",
+    "evidence": [
+     "sig-possession_wmean-KES-p2",
+     "sig-final_third_entries-KES-p2",
+     "sig-xg-KES-p2",
+     "sig-goals-KES-p2"
+    ]
+   },
+   {
+    "text": "Harbour\u2019s drop in pressing intensity and high regains removed the high press that had yielded early goals, leaving them scoreless after the break.",
+    "evidence": [
+     "sig-ppda_wmean-HAR-p2",
+     "sig-high_regains-HAR-p2",
+     "sig-goals-HAR-p2"
+    ]
+   },
+   {
+    "text": "The match finished 2-2 as Kestrel\u2019s improved territorial control and attacking conversion in the second half neutralised Harbour\u2019s first-half dominance.",
+    "evidence": [
+     "sig-goals-HAR-p1",
+     "sig-goals-KES-p2",
+     "sig-possession_wmean-KES-p2",
+     "sig-field_tilt-HAR-p2"
+    ]
+   }
+  ],
+  "source": "model",
+  "attempts": 2,
+  "fallback_reason": null,
+  "removed_claims": []
+ },
+ "log": {
+  "drafts": 4,
+  "rejections": 1,
+  "issues_caught": 1,
+  "fallbacks": 0,
+  "claims_removed": 0,
+  "model_calls": 17,
+  "tokens_in": 30688,
+  "tokens_out": 12678,
+  "model_latency_s": 124.05,
+  "workflow_latency_s": 46.05
+ }
+}

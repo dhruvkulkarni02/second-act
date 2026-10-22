@@ -166,3 +166,39 @@ def test_model_output_conversion_maps_names_and_ids(state: MatchState, draft) ->
     assert [t.team for t in converted.teams] == ["HAR", "KES"]
     assert converted.teams[1].predictions[0].prediction_id == "p-KES-1"
     assert check_briefing(converted, state.signals, state.meta).ok
+
+
+def test_number_words_are_checked() -> None:
+    assert numbers_in("5 shots with three on target") == [5.0, 3.0]
+    assert numbers_in("one of their best spells, per five minutes") == []  # not quantities
+    assert numbers_in("dos goles cada cinco minutos", decimal_comma=True) == [2.0]
+    cited = {"sig-shots-LEI-p1": 5}
+    assert check_numbers("5 shots with three on target", cited, "x")  # "three" is not cited
+    assert not check_numbers("5 shots, two of them saved", cited | {"sig-s-LEI-p1": 2}, "x")
+
+
+def test_kept_quiet_needs_a_clean_sheet() -> None:
+    from second_act.agents.tactician import _Ctx, _working
+    from second_act.analytics.signals import SignalSet
+    from second_act.schema.signals import Signal
+
+    def sig(metric, team, value):
+        return Signal(
+            signal_id=f"sig-{metric}-{team}-p1",
+            metric=metric,
+            value=value,
+            unit="count",
+            team=team,
+            period=1,
+            scope="half",
+        )
+
+    base = [sig("xg", "HAR", 1.2), sig("xg", "KES", 0.3), sig("shots", "KES", 4)]
+    meta = read_metadata(DATA / "m-001" / "metadata.json")
+
+    def keys(goals_against):
+        signals = SignalSet([*base, sig("goals", "KES", goals_against)])
+        return [p.phrase.key for p in _working(_Ctx(signals, meta), "HAR", "KES")]
+
+    assert "w_quiet" in keys(0)
+    assert "w_quiet" not in keys(1)

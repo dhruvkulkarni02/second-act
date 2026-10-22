@@ -473,6 +473,10 @@ def _event_signals(
             team,
         )
         b.add("goals", sum(n.event.type is EventType.GOAL for n in mine), "count", scope, team)
+        if scope.window is None:
+            cards = [n.event.outcome for n in mine if n.event.type is EventType.CARD]
+            b.add("yellow_cards", cards.count("yellow"), "count", scope, team)
+            b.add("red_cards", cards.count("red"), "count", scope, team)
         xg = sum(
             expected_goals(n.x, n.y, n.event.body_part)
             for n in shots

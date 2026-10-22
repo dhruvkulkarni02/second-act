@@ -1,7 +1,7 @@
 {
- "key": "m-002-5b564b068c90ad48",
+ "key": "m-002-333ec9a6e0e98d81",
  "briefing": {
-  "headline": "Kestrel's aggressive high press and turnovers haven't produced goals; Harbour have punished central exposures to lead 2-0.",
+  "headline": "Kestrel press and high turnovers have not stopped Harbour scoring through the centre.",
   "headline_evidence": [
    "sig-ppda-KES-p1",
    "sig-turnover_height-KES-p1",
@@ -13,15 +13,14 @@
     "team": "KES",
     "working": [
      {
-      "text": "Kestrel are pressing intensely (PPDA 4.2) and winning the ball very high (turnover height 47.3 m), generating sustained pressure in the opponent\u2019s half.",
+      "text": "Kestrel are pressing intensely (low PPDA) and winning the ball very high up the pitch.",
       "evidence": [
        "sig-ppda-KES-p1",
-       "sig-turnover_height-KES-p1",
-       "sig-final_third_entries-KES-p1"
+       "sig-turnover_height-KES-p1"
       ]
      },
      {
-      "text": "They have more final-third entries (32) and similar shot volume (8) as Harbour, so the press is creating attacking access even if chances haven\u2019t been converted.",
+      "text": "They have gotten into the final third more than Harbour and created similar shot volume.",
       "evidence": [
        "sig-final_third_entries-KES-p1",
        "sig-shots-KES-p1",
@@ -31,18 +30,18 @@
     ],
     "not_working": [
      {
-      "text": "Kestrel\u2019s high defensive line (def line height 38.7 m) and central positioning leave them vulnerable centrally, which Harbour have exploited.",
+      "text": "That high press hasn\u2019t stopped Harbour\u2019s centre attacks: Harbour put nearly half their entries through the middle.",
       "evidence": [
-       "sig-def_line_height-KES-p1",
        "sig-channel_share-HAR-centre-p1",
-       "sig-goals-HAR-p1"
+       "sig-channel_entries-HAR-centre-p1"
       ]
      },
      {
-      "text": "Their intense press may be costly: PPDA 4.2 suggests high physical output that risks fading later (PPDA is much lower than Harbour\u2019s 8).",
+      "text": "Kestrel\u2019s pressure has not translated into goals; Harbour already have two and a higher xG despite Kestrel\u2019s turnovers high up.",
       "evidence": [
-       "sig-ppda-KES-p1",
-       "sig-ppda-HAR-p1"
+       "sig-goals-HAR-p1",
+       "sig-xg-HAR-p1",
+       "sig-high_regains-KES-p1"
       ]
      }
     ],
@@ -50,7 +49,7 @@
      {
       "prediction_id": "p-KES-1",
       "team": "KES",
-      "claim": "Gregor Molina will have Kestrel sit slightly deeper to reduce Harbour\u2019s success through the centre; centre channel entries by Harbour will fall by at least 30%.",
+      "claim": "Gregor Molina will try to force Harbour wider by crowding midfield to cut their central entries.",
       "metric": "channel_entries",
       "subject_team": "HAR",
       "scope": {
@@ -69,7 +68,7 @@
      {
       "prediction_id": "p-KES-2",
       "team": "KES",
-      "claim": "To preserve legs and control risk, Kestrel\u2019s PPDA will rise by at least 20% as they ease the intensity of their press.",
+      "claim": "He will expect his press to ease as legs tire, so Kestrel\u2019s PPDA should rise.",
       "metric": "ppda",
       "subject_team": "KES",
       "scope": {},
@@ -85,7 +84,7 @@
      {
       "prediction_id": "p-KES-3",
       "team": "KES",
-      "claim": "Kestrel will push to regain territorial edge and increase their final-third entries by at least 20%.",
+      "claim": "He will push to keep Kestrel getting into the final third to chase the game, increasing their entries there.",
       "metric": "final_third_entries",
       "subject_team": "KES",
       "scope": {},
@@ -104,36 +103,35 @@
     "team": "HAR",
     "working": [
      {
-      "text": "Harbour have been efficient from central entries \u2014 47.6% of their final-third entries come down the middle \u2014 and have scored twice.",
+      "text": "Harbour are converting central entries into goals and have the lead.",
       "evidence": [
        "sig-channel_share-HAR-centre-p1",
-       "sig-final_third_entries-HAR-p1",
-       "sig-goals-HAR-p1"
+       "sig-goals-HAR-p1",
+       "sig-xg-HAR-p1"
       ]
      },
      {
-      "text": "They have defended deeper (def line 31.3 m) and conceded high turnovers, which has allowed them to absorb Kestrel\u2019s pressure and counter.",
+      "text": "They keep reasonable control and complete slightly more difficult passes, sustaining attacks through key pass-pairs.",
       "evidence": [
-       "sig-def_line_height-HAR-p1",
-       "sig-turnover_height-HAR-p1",
-       "sig-high_regains-HAR-p1"
+       "sig-control_index-HAR-p1",
+       "sig-pass_difficulty-HAR-p1",
+       "sig-pass_pair-HAR-n10_n8-p1"
       ]
      }
     ],
     "not_working": [
      {
-      "text": "Harbour press much less intensely (PPDA 8) and win the ball lower (turnover height 30.3 m), so they are not matching Kestrel\u2019s ability to create sustained pressure high up.",
+      "text": "Harbour are being turned over less high than Kestrel and so win the ball deeper on average.",
       "evidence": [
-       "sig-ppda-HAR-p1",
-       "sig-turnover_height-HAR-p1",
-       "sig-ppda-KES-p1"
+       "sig-high_regains-HAR-p1",
+       "sig-turnover_height-HAR-p1"
       ]
      },
      {
-      "text": "Their field tilt is low (33.8%), showing they have had less overall possession in the attacking phase despite being clinical.",
+      "text": "Their press is much lazier than Kestrel\u2019s (higher PPDA), so they are offering Kestrel space to build higher possessions.",
       "evidence": [
-       "sig-field_tilt-HAR-p1",
-       "sig-possession-HAR-p1"
+       "sig-ppda-HAR-p1",
+       "sig-possession-KES-p1"
       ]
      }
     ],
@@ -141,7 +139,7 @@
      {
       "prediction_id": "p-HAR-1",
       "team": "HAR",
-      "claim": "Ines Kavanagh will ask Harbour to move the ball more directly and increase progressive passes by at least 15% to exploit Kestrel\u2019s high line on transitions.",
+      "claim": "Ines Kavanagh will ask Harbour to play more progressive passes to punish the spaces left by Kestrel\u2019s press and extend their lead.",
       "metric": "progressive_passes",
       "subject_team": "HAR",
       "scope": {},
@@ -152,13 +150,13 @@
       "status": "open",
       "evidence": [
        "sig-progressive_passes-HAR-p1",
-       "sig-def_line_height-KES-p1"
+       "sig-ppda-KES-p1"
       ]
      },
      {
       "prediction_id": "p-HAR-2",
       "team": "HAR",
-      "claim": "Harbour will try to take more of the game into the final third themselves \u2014 final-third entries will increase by at least 20% as they look to control the ball higher.",
+      "claim": "She will also aim for more final-third entries to keep Kestrel under pressure and protect the lead.",
       "metric": "final_third_entries",
       "subject_team": "HAR",
       "scope": {},
@@ -168,7 +166,8 @@
       "evaluate_after_minute": 65,
       "status": "open",
       "evidence": [
-       "sig-final_third_entries-HAR-p1"
+       "sig-final_third_entries-HAR-p1",
+       "sig-field_tilt-HAR-p1"
       ]
      }
     ]
@@ -185,10 +184,10 @@
   "issues_caught": 1,
   "fallbacks": 0,
   "claims_removed": 0,
-  "model_calls": 3,
-  "tokens_in": 13868,
-  "tokens_out": 3224,
-  "model_latency_s": 30.32,
-  "workflow_latency_s": 19.93
+  "model_calls": 4,
+  "tokens_in": 15419,
+  "tokens_out": 3620,
+  "model_latency_s": 31.66,
+  "workflow_latency_s": 16.91
  }
 }

@@ -23,3 +23,6 @@ logs/*
 .vscode/
 .idea/
 .claude/
+
+# Real match data for local tests only (StatsBomb open data licence; never committed)
+data/real/

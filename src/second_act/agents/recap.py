@@ -290,6 +290,15 @@ def template_recap_phrases(state: MatchState) -> TemplateRecap:
             [make_id("possession", home, None, 2)],
         )
     ]
+    reds = [
+        TemplatePoint(
+            Phrase("r_red", {"tn": meta.team(t).short_name}), [make_id("red_cards", t, None, p)]
+        )
+        for t in (home, away)
+        for p in (1, 2)
+        if (signals.value("red_cards", t, None, p) or 0) > 0
+    ]
+    changes = (reds + changes)[:MAX_POINTS]
     final_eval = {pid: phrase for pid, phrase in _final_phrases(state).items()}
     reviews = []
     for p in state.predictions:

@@ -53,6 +53,8 @@ METRIC_NOTES = {
     "team_width": "mean width of the outfield shape (m)",
     "sprints": "sprint efforts > 25 km/h",
     "fast_shots": "shots above 100 km/h",
+    "yellow_cards": "yellow cards",
+    "red_cards": "red cards (sendings-off)",
     "avg_position_x": "player's mean on-ball x (m)",
     "avg_position_y": "player's mean on-ball y (m; left = low y)",
     "pass_pair": "completed passes between two players",
@@ -254,7 +256,7 @@ def _working(c: _Ctx, t: str, o: str) -> list[TemplatePoint]:
                 [c.sid("xg", t), c.sid("xg", o)],
             )
         )
-    if xg_o < 0.8 and xg_o < xg_t * 2:
+    if xg_o < 0.8 and xg_o < xg_t * 2 and c.v("goals", o) == 0:
         out.append(
             TemplatePoint(
                 Phrase("w_quiet", {**names, "shots": Num(c.v("shots", o)), "xg_o": Num(xg_o)}),
