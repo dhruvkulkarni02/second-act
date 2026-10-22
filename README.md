@@ -22,6 +22,8 @@ pytest                              # offline: no model calls
 3. Run `az login`. Auth goes through Microsoft Entra ID (`DefaultAzureCredential`), so the app stores no keys.
 4. `python scripts/foundry_smoke.py` makes one call through Microsoft Agent Framework (`agent-framework-foundry`, `FoundryChatClient`) and prints the latency and token counts.
 
+The M1 connectivity check ran against a `gpt-5-mini` Global Standard deployment in Sweden Central: each round trip took 3–6 s, with reasoning effort `low` (`FOUNDRY_REASONING_EFFORT`).
+
 ## Synthetic data
 
 Three seeded matches between two fictional clubs, Harbour Town and Kestrel Athletic, live in `data/`. Each has events, metadata and 1 Hz position snapshots. [docs/generator.md](docs/generator.md) covers how tactics parameters become events, how the demo story is planted and checked, and the known limitations.
