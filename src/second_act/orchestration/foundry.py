@@ -28,6 +28,7 @@ class FoundrySettings:
 
     project_endpoint: str
     model: str
+    reasoning_effort: str | None = None
 
     @classmethod
     def from_env(cls) -> FoundrySettings:
@@ -35,11 +36,16 @@ class FoundrySettings:
         load_dotenv()
         endpoint = os.environ.get("FOUNDRY_PROJECT_ENDPOINT", "").strip()
         model = os.environ.get("FOUNDRY_MODEL", "").strip()
+        effort = os.environ.get("FOUNDRY_REASONING_EFFORT", "low").strip() or None
         if not endpoint or not model or "<" in endpoint or "<" in model:
             raise FoundryNotConfigured(
                 "Set FOUNDRY_PROJECT_ENDPOINT and FOUNDRY_MODEL (see .env.example)."
             )
-        return cls(project_endpoint=endpoint, model=model)
+        return cls(project_endpoint=endpoint, model=model, reasoning_effort=effort)
+
+    def default_options(self) -> dict[str, object]:
+        """Agent ``default_options`` for this deployment (reasoning effort, if set)."""
+        return {"reasoning": {"effort": self.reasoning_effort}} if self.reasoning_effort else {}
 
 
 def offline_mode() -> bool:
@@ -70,10 +76,12 @@ class SmokeResult:
 
 async def smoke_call(prompt: str = "Reply with exactly: Second Act is live.") -> SmokeResult:
     """Make one model call through an Agent Framework agent and report latency and tokens."""
+    settings = FoundrySettings.from_env()
     agent = Agent(
-        client=build_chat_client(),
+        client=build_chat_client(settings),
         name="SmokeTest",
         instructions="You are a terse connectivity check. Follow the user's instruction exactly.",
+        default_options=settings.default_options(),
     )
     start = time.perf_counter()
     response = await agent.run(prompt)

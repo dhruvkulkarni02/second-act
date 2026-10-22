@@ -32,3 +32,14 @@ def test_settings_read_from_env(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("FOUNDRY_MODEL", "my-deployment")
     settings = FoundrySettings.from_env()
     assert settings.model == "my-deployment"
+
+
+def test_reasoning_effort_becomes_default_options(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv(
+        "FOUNDRY_PROJECT_ENDPOINT", "https://acct.services.ai.azure.com/api/projects/p"
+    )
+    monkeypatch.setenv("FOUNDRY_MODEL", "my-deployment")
+    monkeypatch.setenv("FOUNDRY_REASONING_EFFORT", "low")
+    assert FoundrySettings.from_env().default_options() == {"reasoning": {"effort": "low"}}
+    monkeypatch.setenv("FOUNDRY_REASONING_EFFORT", "")
+    assert FoundrySettings.from_env().default_options() == {}
