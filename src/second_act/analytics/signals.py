@@ -311,6 +311,16 @@ def compute_signals(
                 _tracking_signals(b, scope, tracking, meta, gk)
         _half_only_signals(b, half, in_period, meta, tracking)
         _window_means(b, half)
+        # Players on the pitch at the end of this half (red cards so far, both halves).
+        for team in (meta.home.code, meta.away.code):
+            reds = sum(
+                n.team == team
+                and n.period <= period
+                and n.event.type is EventType.CARD
+                and n.event.outcome == "red"
+                for n in norm
+            )
+            b.add("players_on_pitch", 11 - reds, "count", half, team)
     return SignalSet(b.signals)
 
 

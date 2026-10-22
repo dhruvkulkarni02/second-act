@@ -61,6 +61,7 @@ METRIC_NOTES = {
     "top_speed": "top speed (km/h)",
     "difficult_passes": "completed passes rated >= 60 difficulty",
     "max_shot_speed": "fastest shot (km/h)",
+    "players_on_pitch": "players left at the end of this period (11 minus red cards)",
     "distance": "distance covered (km)",
 }
 
@@ -249,6 +250,17 @@ def _working(c: _Ctx, t: str, o: str) -> list[TemplatePoint]:
             )
         )
     xg_t, xg_o = c.v("xg", t), c.v("xg", o)
+    goals_t = c.v("goals", t)
+    if goals_t >= 1 and goals_t >= xg_t + 0.25:
+        out.append(
+            TemplatePoint(
+                Phrase(
+                    "w_clinical_1" if goals_t == 1 else "w_clinical",
+                    {**names, "g": Num(goals_t), "xg": Num(xg_t)},
+                ),
+                [c.sid("goals", t), c.sid("xg", t)],
+            )
+        )
     if xg_t >= 0.5 and xg_t >= 2 * xg_o:
         out.append(
             TemplatePoint(
@@ -283,6 +295,13 @@ def _working(c: _Ctx, t: str, o: str) -> list[TemplatePoint]:
 def _not_working(c: _Ctx, t: str, o: str) -> list[TemplatePoint]:
     names = {"tn": c.name(t), "on": c.name(o)}
     out: list[TemplatePoint] = []
+    if c.v("red_cards", t) > 0:
+        out.append(
+            TemplatePoint(
+                Phrase("n_red", {**names, "n": Num(c.v("players_on_pitch", t))}),
+                [c.sid("red_cards", t), c.sid("players_on_pitch", t)],
+            )
+        )
     hr_t, hr_o = c.v("high_regains", t), c.v("high_regains", o)
     if hr_o >= 8 and hr_o >= 2 * max(hr_t, 1):
         out.append(

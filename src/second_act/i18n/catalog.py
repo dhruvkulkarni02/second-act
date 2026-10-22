@@ -205,7 +205,25 @@ PHRASES: dict[str, tuple[str, str, str, str]] = {
         "{tn} ha completado el {pc} % de sus pases.",
         "{tn} ha cuidado el balón: {pc} % de pases completados.",
     ),
+    "w_clinical_1": (
+        "{tn} have made their chance count: a goal from {xg} xG.",
+        "{tn} have been clinical: a goal from chances worth {xg} xG.",
+        "{tn} ha aprovechado su ocasión: un gol con {xg} xG.",
+        "{tn} ha sido letal: un gol con ocasiones de {xg} xG.",
+    ),
+    "w_clinical": (
+        "{tn} have made their chances count: {g} goals from {xg} xG.",
+        "{tn} have been clinical: {g} goals from chances worth {xg} xG.",
+        "{tn} ha aprovechado sus ocasiones: {g} goles con {xg} xG.",
+        "{tn} ha sido letal: {g} goles con ocasiones de {xg} xG.",
+    ),
     # --- half-time briefing: what is not working ---
+    "n_red": (
+        "{tn} are down to {n} men after a red card.",
+        "{tn} have had a player sent off and are down to {n}.",
+        "{tn} se ha quedado con {n} jugadores tras una expulsión.",
+        "{tn} se ha quedado con {n} por una expulsión.",
+    ),
     "n_own_third": (
         "{tn} keep losing the ball in their own third: {on} have won it there {hr_o} times.",
         "{tn} keep giving the ball away near their own goal: {hr_o} times so far.",
@@ -472,6 +490,18 @@ PHRASES: dict[str, tuple[str, str, str, str]] = {
         "After the break, {team}'s {label} {went} from {b} to {a}{unit}.",
         "{team}, {label}: de {b} a {a}{unit} tras el descanso.",
         "Tras el descanso, {label} de {team}: de {b} a {a}{unit}.",
+    ),
+    "t_red.h": (
+        "{tn} down to {n} men",
+        "{tn} down to {n}!",
+        "{tn}, con {n} jugadores",
+        "¡{tn} se queda con {n}!",
+    ),
+    "t_red.b": (
+        "A red card in the last five minutes changes the balance of the game.",
+        "A player has been sent off.",
+        "Una expulsión en los últimos cinco minutos cambia el partido.",
+        "Han expulsado a un jugador.",
     ),
     "r_scored": (
         "{team} scored {g} after the break from {xg} xG.",
