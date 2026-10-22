@@ -17,31 +17,13 @@ from dataclasses import dataclass, field
 
 from pydantic import BaseModel, Field
 
-from second_act.analytics.signals import SignalSet, make_id
+from second_act.analytics.signals import WINDOWED_METRICS, SignalSet, make_id
 from second_act.schema.briefing import BriefingDraft, Point
 from second_act.schema.metadata import MatchMetadata
 from second_act.schema.predictions import Prediction, PredictionStatus
 
 # Metrics the watcher can evaluate per window, and the qualifier each scope key maps to.
-EVALUABLE_METRICS = {
-    "channel_entries",
-    "final_third_entries",
-    "possession",
-    "field_tilt",
-    "ppda",
-    "turnover_height",
-    "high_regains",
-    "progressive_passes",
-    "shots",
-    "xg",
-    "pass_completion",
-    "pass_difficulty",
-    "sequence_length",
-    "turnovers_per_min",
-    "control_index",
-    "def_line_height",
-    "team_width",
-}
+EVALUABLE_METRICS = WINDOWED_METRICS
 SCOPED_METRICS = {"channel_entries": "channel"}
 CHANNELS = {"left", "centre", "right"}
 MIN_EVALUATE_MINUTE, MAX_EVALUATE_MINUTE = 60, 85
@@ -101,12 +83,17 @@ def normalize_evidence(ids: Iterable[str]) -> list[str]:
     return out
 
 
-def numbers_in(text: str) -> list[float]:
+_COMMA_DECIMAL = re.compile(r"(?<=\d),(?=\d)")
+
+
+def numbers_in(text: str, decimal_comma: bool = False) -> list[float]:
     """Numeric literals in prose, including ordinals and unit suffixes (55th, 20m).
 
     Formations (4-3-3), identifiers (HAR-11, signal IDs) and #shirt numbers are ignored.
     """
     cleaned = _IDENTIFIER.sub(" ", _FORMATION.sub(" ", text))
+    if decimal_comma:  # Spanish: 70,6 means 70.6
+        cleaned = _COMMA_DECIMAL.sub(".", cleaned)
     return [float(m) for m in _NUMBER.findall(cleaned)]
 
 
@@ -129,27 +116,37 @@ def matches(number: float, value: float, whole_rounding: bool = True) -> bool:
     return whole_rounding and number == _round_half_up(value, 0)
 
 
-def derived_values(values: Sequence[float]) -> list[float]:
-    """Differences, ratios and percentage changes between pairs of cited values."""
-    out: list[float] = []
+def derived_values(values: Sequence[float]) -> list[tuple[float, bool]]:
+    """Sums, differences, ratios and percentage changes between pairs of cited values.
+
+    Each comes with whether it may be quoted rounded to a whole number: percentage
+    changes may ("a 33% rise" for 33.3%), differences and ratios may not.
+    """
+    out: list[tuple[float, bool]] = []
+    for a, b in itertools.combinations(values, 2):
+        out.append((a + b, False))  # totals, e.g. a full-time score from two halves
     for a, b in itertools.permutations(values, 2):
-        out.append(abs(a - b))
+        out.append((abs(a - b), False))
         if b:
-            out.append(a / b)
-            out.append(abs(a - b) / abs(b) * 100)
+            out.append((a / b, False))
+            out.append((abs(a - b) / abs(b) * 100, True))
     return out
 
 
 def check_numbers(
-    text: str, cited: dict[str, float], where: str, extra: Sequence[float] = ()
+    text: str,
+    cited: dict[str, float],
+    where: str,
+    extra: Sequence[float] = (),
+    decimal_comma: bool = False,
 ) -> list[Issue]:
     """Every number in ``text`` must be a cited value, a derived value, or in ``extra``."""
     allowed = [*cited.values(), *extra]
     derived = derived_values(list(cited.values()))
     issues = []
-    for number in numbers_in(text):
+    for number in numbers_in(text, decimal_comma):
         if any(matches(number, v) for v in allowed) or any(
-            matches(number, v, whole_rounding=False) for v in derived
+            matches(number, v, whole_rounding=whole) for v, whole in derived
         ):
             continue
         shown = ", ".join(f"{k}={v:g}" for k, v in cited.items()) or "none"
@@ -414,12 +411,11 @@ class ModelSupportChecker:
     def __init__(self, agent) -> None:
         self.agent = agent
 
-    async def check(self, draft: BriefingDraft, signals: SignalSet) -> tuple[list[Issue], dict]:
+    async def check(self, claims: list[dict]) -> tuple[list[Issue], dict]:
         """Return issues for unsupported claims, plus latency and usage for the log."""
         import json
         import time
 
-        claims = claims_for_support_check(draft, signals)
         start = time.perf_counter()
         response = await self.agent.run(
             "Check each claim:\n" + json.dumps(claims, indent=1),

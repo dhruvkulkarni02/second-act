@@ -58,7 +58,32 @@ MIN_PLAYER_PASSES = 10
 MIN_NODE_TOUCHES = 5
 TOP_PAIRS = 5
 
+# Team-level metrics computed per window: the ones predictions can be tested on.
+WINDOWED_METRICS = frozenset(
+    {
+        "channel_entries",
+        "final_third_entries",
+        "possession",
+        "field_tilt",
+        "ppda",
+        "turnover_height",
+        "high_regains",
+        "progressive_passes",
+        "shots",
+        "xg",
+        "pass_completion",
+        "pass_difficulty",
+        "sequence_length",
+        "turnovers_per_min",
+        "control_index",
+        "def_line_height",
+        "team_width",
+    }
+)
+WMEAN_SUFFIX = "_wmean"
+
 DIGITS = {
+    "per_window": 2,
     "count": 0,
     "pct": 1,
     "m": 1,
@@ -285,7 +310,36 @@ def compute_signals(
             if tracking is not None:
                 _tracking_signals(b, scope, tracking, meta, gk)
         _half_only_signals(b, half, in_period, meta, tracking)
+        _window_means(b, half)
     return SignalSet(b.signals)
+
+
+def _window_means(b: _Builder, half: _Scope) -> None:
+    """Mean over the half's complete windows of each windowed team metric.
+
+    These are the before/after values prediction tests compare
+    (``sig-channel_entries_wmean-HAR-left-p1`` vs ``...-p2``). Counts become a
+    rate per five-minute window, so their unit is ``per_window``.
+    """
+    groups: dict[tuple[str, str | None, str | None], list[Signal]] = defaultdict(list)
+    for sig in b.signals:
+        if (
+            sig.period == half.period
+            and sig.window is not None
+            and sig.player_id is None
+            and sig.metric in WINDOWED_METRICS
+        ):
+            groups[(sig.metric, sig.team, sig.qualifier)].append(sig)
+    for (metric, team, qualifier), sigs in sorted(groups.items(), key=lambda kv: str(kv[0])):
+        unit = "per_window" if sigs[0].unit == "count" else sigs[0].unit
+        b.add(
+            metric + WMEAN_SUFFIX,
+            sum(s.value for s in sigs) / len(sigs),
+            unit,
+            half,
+            team,
+            qualifier,
+        )
 
 
 # ----- event-based signals --------------------------------------------------

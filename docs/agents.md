@@ -1,6 +1,14 @@
 # Agents and orchestration
 
-M3 covers the half-time path. The watcher, the live triggers and the presenter arrive in M4.
+Five agents share one `MatchState`. Each has an offline mode that produces deterministic output without a model, used in tests, in CI and as a fallback.
+
+| Agent | Online | Offline |
+| --- | --- | --- |
+| Analyst | rules only: live triggers and player tags | the same |
+| Tactician | Foundry model: briefing and recap as structured output | template rules |
+| Verifier | deterministic layer plus a model support check | deterministic layer |
+| Watcher | deterministic verdicts plus a model-phrased sentence (guarded) | template sentence |
+| Presenter | model rewrites of model-written content into each audience and language | phrase catalogue |
 
 ## Shared match state
 
@@ -13,9 +21,9 @@ M3 covers the half-time path. The watcher, the live triggers and the presenter a
 
 An agent can only cite a signal that exists in `state.signals`. At half-time the state holds only first-half data, so a second-half ID like `sig-xg-HAR-p2` is rejected as unknown.
 
-## Half-time workflow (Microsoft Agent Framework)
+## Verified writing workflow (Microsoft Agent Framework)
 
-`orchestration/halftime.py` builds a `WorkflowBuilder` graph with three executors:
+`orchestration/verified.py` is shared by the half-time briefing (`halftime.py`) and the full-time recap (`recap.py`). Each one plugs in a small `WritingTask` that supplies its checks, claims, pruning, template and output type. For the briefing, it builds a `WorkflowBuilder` graph with three executors:
 
 ```
 HalftimeRequest -> [tactician] --DraftMessage (N parallel candidates)--> [verifier] --Briefing--> output
@@ -89,3 +97,66 @@ What the verifier has caught on real drafts:
 PYTHONPATH=src .venv/bin/python -m second_act.orchestration.cli m-001             # online
 PYTHONPATH=src .venv/bin/python -m second_act.orchestration.cli m-001 --offline   # template, no model
 ```
+
+## Watcher (second half)
+
+A prediction compares the mean of its metric over the completed second-half windows with the first-half window mean. The watcher cites both values as signals, for example `sig-channel_entries_wmean-HAR-left-p1` and `...-p2`. It judges a prediction only after that prediction's `evaluate_after_minute`, and only once at least 3 second-half windows are complete.
+
+- **Confirmed:** the change reaches the threshold in the predicted direction.
+- **Contradicted:** the change is under half the threshold, or goes the other way.
+- **Open:** anything in between. At full time every open prediction gets a final verdict.
+- **Reversals:** a decided prediction flips only when the opposite rule clearly holds. In the demo, "Harbour's press fades" is contradicted at 65' and confirmed at 80'.
+
+On each status change, online, the model rephrases the template sentence. It must keep the same numbers (deterministic check) and must not use words that contradict the verdict (keyword guard). Otherwise the template sentence is used. At full time the watcher re-evaluates every prediction, so the recap quotes final values.
+
+## Analyst (live triggers and player tags)
+
+At each window close the analyst compares the window with a baseline. The baseline is the first-half average during the second half, and the half average so far during the first half. It raises at most one trigger per 5 match minutes:
+
+- **Channel surge:** at least 3 entries and at least twice the baseline.
+- **Press burst:** high regains well above the baseline.
+- **Turnover height jump:** 12 m or more.
+- **Territory:** at least 80% field tilt.
+- **Chances:** at least 0.4 xG in the window.
+
+Player tags (at most one per 10 minutes, each player at most once per kind):
+
+- shots above 100 km/h;
+- top speeds of 34 km/h or more;
+- 4 or more difficult passes completed.
+
+## Presenter (variants)
+
+Every source item becomes 12 cues: analyst or casual, English or Spanish, and three club-focus settings (none, home, away). They're generated when the item is created, so switching on the frontend is instant.
+
+- **Template content** (live triggers, tags, template briefings and recaps, watcher verdict sentences) is rendered from `i18n/catalog.py`. Spanish uses decimal commas.
+- **Model-written briefings and recaps** are rewritten by the model, one call per variant, in parallel. Every rewritten line must pass the number check, which reads decimal commas in Spanish. A line that fails falls back to the English analyst line.
+- **Prediction checks** use the model's sentence for the English analyst line, and the catalogue (which states every verdict correctly) for the other variants.
+- **Club focus:**
+  - live cues get favourable or worrying framing ("Good news for Kestrel fans:" / "Alarma en Kestrel:");
+  - briefings and recaps put the club's read first and prefix the headline.
+
+## Match runner and API
+
+`orchestration/match_runner.py` replays a stored match, emitting:
+
+- `match`, `event`, `score` and `status` as play unfolds;
+- `cue`, `predictions`, `briefing` and `recap` as the agents produce them;
+- `end` when the replay finishes.
+
+At each window close it refreshes the signals and runs the analyst. In the second half it also runs the watcher, as an ordered background task, so model calls never stall the stream.
+
+At half-time the stream pauses. The English analyst briefing is sent first (`status: partial`), then all variants (`status: ready`). At full time come the final verdicts, the recap and its variants.
+
+`api/app.py` (FastAPI) serves the endpoints in PRD section 10. `/api/sessions/{id}/stream` is server-sent events. Each session keeps its history, so late or reconnecting clients replay from the start.
+
+## Measured: full online replay of m-001 (gpt-5-mini, nothing cached)
+
+| Stage | Result |
+| --- | --- |
+| Half-time briefing | Model-written, verified on the first round (23 s). English analyst variant streamed at 23.6 s, all 12 variants by 33.9 s |
+| Prediction checks | 6 predictions; status changes explained by the model (2–3 s each), every sentence passing the number check and the verdict guard |
+| Full-time recap | Model-written, 1 rejected draft (an unsupported claim), verified in 27 s; all variants 12 s later |
+| Whole match | 21 model calls, about 35k input and 16k output tokens |
+
+An offline replay of the whole match takes about 2.5 s and produces about 2,900 messages, 300 of them cues.

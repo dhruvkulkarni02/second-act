@@ -4,7 +4,7 @@
 
 Second Act is a multi-agent system that turns a live stream of synthetic football events into explainable match intelligence. Its centrepiece is a half-time briefing that predicts each manager's adjustments as measurable tests, then confirms or rejects them on screen during the second half. Built for the Microsoft × Premier League *Inside the Game* hackathon. See [PRD.md](PRD.md).
 
-> Status: M1 (scaffold, schemas, synthetic data, Foundry connectivity), M2 (analytics) and M3 (half-time briefing with verification) are done. The full README arrives in M6.
+> Status: M1 to M4 are done: synthetic data, analytics, the verified half-time briefing, and second-half prediction checks, live cues, the full-time recap, the presenter's variants and the SSE stream. The full README arrives in M6.
 
 ## Quick start (offline)
 
@@ -41,3 +41,13 @@ At the half-time whistle a Microsoft Agent Framework workflow runs. The tacticia
 second-act-halftime m-001            # online (Foundry)
 second-act-halftime m-001 --offline  # no model calls
 ```
+
+## Live replay API
+
+```bash
+PYTHONPATH=src .venv/bin/uvicorn second_act.api.app:app --port 8000
+curl -X POST localhost:8000/api/sessions -H 'content-type: application/json' -d '{"match_id": "m-001", "speed": 30}'
+curl -N localhost:8000/api/sessions/<session_id>/stream
+```
+
+The stream carries match events, the score and clock, and overlay cues in every variant: analyst or casual, English or Spanish, and three club-focus settings. The cue format is in [docs/cue_contract.md](docs/cue_contract.md).

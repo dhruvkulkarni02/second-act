@@ -12,6 +12,7 @@ from second_act.schema.cues import Cue
 from second_act.schema.events import Event, EventType
 from second_act.schema.metadata import MatchMetadata
 from second_act.schema.predictions import Prediction
+from second_act.schema.recap import Recap
 from second_act.schema.snapshots import Snapshot
 
 
@@ -31,6 +32,9 @@ class MatchState:
     clock: tuple[int, float] = (1, 0.0)
     briefing: Briefing | None = None
     predictions: list[Prediction] = field(default_factory=list)
+    # Latest watcher verdict per prediction: (explanation, evidence signal IDs).
+    prediction_notes: dict[str, tuple[str, list[str]]] = field(default_factory=dict)
+    recap: Recap | None = None
     cues: list[Cue] = field(default_factory=list)
 
     def ingest(self, events: Sequence[Event], snapshots: Sequence[Snapshot] = ()) -> None:
@@ -56,6 +60,12 @@ class MatchState:
             if e.type is EventType.GOAL and e.team in goals:
                 goals[e.team] += 1
         return goals
+
+    @property
+    def minute(self) -> float:
+        """Match minute of the clock (period 2 starts at 45)."""
+        period, t = self.clock
+        return (45.0 if period == 2 else 0.0) + t / 60.0
 
     @property
     def at_halftime(self) -> bool:
