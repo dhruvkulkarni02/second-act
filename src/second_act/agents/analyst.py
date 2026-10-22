@@ -54,6 +54,7 @@ class Analyst:
     last_trigger: float = -1e9
     last_tag: float = -1e9
     tagged: set[tuple[str, str, int]] = field(default_factory=set)
+    reds_seen: dict[tuple[str, int], int] = field(default_factory=dict)
 
     def on_window(
         self, signals: SignalSet, period: int, window: int, minute: float
@@ -178,6 +179,24 @@ class Analyst:
                         ),
                     )
                 )
+            reds = signals.get(make_id("red_cards", team, None, period))
+            left = signals.get(make_id("players_on_pitch", team, None, period))
+            seen = self.reds_seen.get((team, period), 0)
+            if reds is not None and left is not None and reds.value > seen:
+                self.reds_seen[(team, period)] = int(reds.value)
+                params = {**names, "n": Num(left.value)}
+                item = self._item(
+                    "live_trigger",
+                    "red_card",
+                    period,
+                    minute,
+                    team,
+                    Phrase("t_red.h", params),
+                    Phrase("t_red.b", params),
+                    [reds.signal_id, left.signal_id],
+                )
+                item.favours = opp  # a sending-off helps the other side
+                found.append((10.0, item))
             now = window_value("xg")
             if now and now[0] >= CHANCE_XG:
                 params = {**names, "xg": Num(now[0])}
