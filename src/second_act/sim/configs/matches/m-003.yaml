@@ -1,0 +1,39 @@
+# Control match: an even, central game with no tactical change at half-time.
+match_id: m-003
+title: Harbour Town v Kestrel Athletic (reverse fixture)
+description: >
+  Both sides play a mid block, prefer the centre and keep the same tactics
+  throughout. Analytics should find no large shift between halves.
+seed: 3141
+home: HAR
+away: KES
+venue: Dockside Park, Harbour Town
+kickoff: "2027-02-13T15:00:00+00:00"
+stoppage_s: {1: 100, 2: 200}
+teams:
+  HAR:
+    formation: 4-2-3-1
+    lineup: {GK: 1, LB: 3, LCB: 5, RCB: 4, RB: 2, LDM: 6, RDM: 8, LW: 11, AM: 10, RW: 7, ST: 9}
+    tactics:
+      press_height: 0.55
+      press_intensity: 0.52
+      def_line: 30
+      width: 0.95
+      tempo: 0.45
+      channel_weights: {left: 0.28, centre: 0.44, right: 0.28}
+      buildup_security: 0.45
+      wide_block: 0.15
+      central_block: 0.30
+  KES:
+    formation: 4-4-2
+    lineup: {GK: 1, LB: 3, LCB: 4, RCB: 5, RB: 2, LM: 11, LCM: 10, RCM: 8, RM: 7, LST: 9, RST: 19}
+    tactics:
+      press_height: 0.52
+      press_intensity: 0.50
+      def_line: 29
+      width: 0.95
+      tempo: 0.48
+      channel_weights: {left: 0.30, centre: 0.42, right: 0.28}
+      buildup_security: 0.42
+      wide_block: 0.15
+      central_block: 0.30

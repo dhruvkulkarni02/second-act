@@ -1,0 +1,290 @@
+{
+  "match_id": "m-001",
+  "title": "Harbour Town v Kestrel Athletic",
+  "home": {
+    "code": "HAR",
+    "name": "Harbour Town",
+    "short_name": "Harbour",
+    "primary_colour": "#0B4F8A",
+    "secondary_colour": "#F2C14E",
+    "formation": "4-3-3",
+    "manager": "Ines Kavanagh",
+    "squad": [
+      {
+        "player_id": "HAR-1",
+        "name": "Tomas Arrandale",
+        "shirt_number": 1,
+        "position": "GK",
+        "starter": true
+      },
+      {
+        "player_id": "HAR-2",
+        "name": "Callum Reyes-Hart",
+        "shirt_number": 2,
+        "position": "DF",
+        "starter": true
+      },
+      {
+        "player_id": "HAR-3",
+        "name": "Nico Fairbairn",
+        "shirt_number": 3,
+        "position": "DF",
+        "starter": true
+      },
+      {
+        "player_id": "HAR-4",
+        "name": "Jonah Mbeki-Lund",
+        "shirt_number": 4,
+        "position": "DF",
+        "starter": true
+      },
+      {
+        "player_id": "HAR-5",
+        "name": "Rafael Ostrander",
+        "shirt_number": 5,
+        "position": "DF",
+        "starter": true
+      },
+      {
+        "player_id": "HAR-6",
+        "name": "Mateo Quillan",
+        "shirt_number": 6,
+        "position": "MF",
+        "starter": true
+      },
+      {
+        "player_id": "HAR-7",
+        "name": "Felix Marrow",
+        "shirt_number": 7,
+        "position": "FW",
+        "starter": true
+      },
+      {
+        "player_id": "HAR-8",
+        "name": "Liam Okonkwo-Vale",
+        "shirt_number": 8,
+        "position": "MF",
+        "starter": true
+      },
+      {
+        "player_id": "HAR-9",
+        "name": "Andre Solheimsen",
+        "shirt_number": 9,
+        "position": "FW",
+        "starter": true
+      },
+      {
+        "player_id": "HAR-10",
+        "name": "Sami Haddouri",
+        "shirt_number": 10,
+        "position": "MF",
+        "starter": true
+      },
+      {
+        "player_id": "HAR-11",
+        "name": "Yusuf Kerrigan",
+        "shirt_number": 11,
+        "position": "FW",
+        "starter": true
+      },
+      {
+        "player_id": "HAR-13",
+        "name": "Owen Pritchley",
+        "shirt_number": 13,
+        "position": "GK",
+        "starter": false
+      },
+      {
+        "player_id": "HAR-14",
+        "name": "Ruben Teague",
+        "shirt_number": 14,
+        "position": "FW",
+        "starter": false
+      },
+      {
+        "player_id": "HAR-15",
+        "name": "Elias Brannagh",
+        "shirt_number": 15,
+        "position": "DF",
+        "starter": false
+      },
+      {
+        "player_id": "HAR-16",
+        "name": "Ivo Castellane",
+        "shirt_number": 16,
+        "position": "MF",
+        "starter": false
+      },
+      {
+        "player_id": "HAR-18",
+        "name": "Danny Whitlock",
+        "shirt_number": 18,
+        "position": "MF",
+        "starter": false
+      },
+      {
+        "player_id": "HAR-19",
+        "name": "Marcus Delacroix-Penn",
+        "shirt_number": 19,
+        "position": "FW",
+        "starter": false
+      },
+      {
+        "player_id": "HAR-22",
+        "name": "Kofi Adeyemi-Ross",
+        "shirt_number": 22,
+        "position": "DF",
+        "starter": false
+      }
+    ]
+  },
+  "away": {
+    "code": "KES",
+    "name": "Kestrel Athletic",
+    "short_name": "Kestrel",
+    "primary_colour": "#B3261E",
+    "secondary_colour": "#F5F5F0",
+    "formation": "4-3-3",
+    "manager": "Gregor Molina",
+    "squad": [
+      {
+        "player_id": "KES-1",
+        "name": "Bram Oyelaran",
+        "shirt_number": 1,
+        "position": "GK",
+        "starter": true
+      },
+      {
+        "player_id": "KES-2",
+        "name": "Theo Lindqvist-Amos",
+        "shirt_number": 2,
+        "position": "DF",
+        "starter": true
+      },
+      {
+        "player_id": "KES-3",
+        "name": "Aaron Pell",
+        "shirt_number": 3,
+        "position": "DF",
+        "starter": true
+      },
+      {
+        "player_id": "KES-4",
+        "name": "Gideon Varga",
+        "shirt_number": 4,
+        "position": "DF",
+        "starter": true
+      },
+      {
+        "player_id": "KES-5",
+        "name": "Moses Achterberg",
+        "shirt_number": 5,
+        "position": "DF",
+        "starter": true
+      },
+      {
+        "player_id": "KES-7",
+        "name": "Isak Thornbury",
+        "shirt_number": 7,
+        "position": "FW",
+        "starter": true
+      },
+      {
+        "player_id": "KES-8",
+        "name": "Joel Hartigan",
+        "shirt_number": 8,
+        "position": "MF",
+        "starter": true
+      },
+      {
+        "player_id": "KES-9",
+        "name": "Kwame Ashdown",
+        "shirt_number": 9,
+        "position": "FW",
+        "starter": true
+      },
+      {
+        "player_id": "KES-10",
+        "name": "Dario Venturelli",
+        "shirt_number": 10,
+        "position": "MF",
+        "starter": true
+      },
+      {
+        "player_id": "KES-11",
+        "name": "Pablo Rennick",
+        "shirt_number": 11,
+        "position": "FW",
+        "starter": true
+      },
+      {
+        "player_id": "KES-12",
+        "name": "Stefan Halvorsk",
+        "shirt_number": 12,
+        "position": "GK",
+        "starter": false
+      },
+      {
+        "player_id": "KES-14",
+        "name": "Emre Kalinski",
+        "shirt_number": 14,
+        "position": "MF",
+        "starter": true
+      },
+      {
+        "player_id": "KES-15",
+        "name": "Luca Brennan-Sato",
+        "shirt_number": 15,
+        "position": "DF",
+        "starter": false
+      },
+      {
+        "player_id": "KES-16",
+        "name": "Kit Amberley",
+        "shirt_number": 16,
+        "position": "MF",
+        "starter": false
+      },
+      {
+        "player_id": "KES-17",
+        "name": "Jasper Coultrane",
+        "shirt_number": 17,
+        "position": "FW",
+        "starter": false
+      },
+      {
+        "player_id": "KES-19",
+        "name": "Tiago Merriman",
+        "shirt_number": 19,
+        "position": "FW",
+        "starter": false
+      },
+      {
+        "player_id": "KES-20",
+        "name": "Noah Fenwick-Diallo",
+        "shirt_number": 20,
+        "position": "MF",
+        "starter": false
+      },
+      {
+        "player_id": "KES-23",
+        "name": "Patrice Lomond",
+        "shirt_number": 23,
+        "position": "DF",
+        "starter": false
+      }
+    ]
+  },
+  "venue": "Dockside Park, Harbour Town",
+  "kickoff": "2026-10-24T15:00:00+01:00",
+  "seed": 118,
+  "period_lengths_s": {
+    "1": 2840.69,
+    "2": 2961.46
+  },
+  "attacking_toward_high_x": {
+    "1": "HAR",
+    "2": "KES"
+  },
+  "has_snapshots": true
+}
