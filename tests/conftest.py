@@ -3,9 +3,13 @@
 from __future__ import annotations
 
 import asyncio
+import os
 from pathlib import Path
 
 import pytest
+
+# No half-time hold in tests (read when the API module is imported).
+os.environ.setdefault("SECOND_ACT_HALFTIME_HOLD_S", "0")
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "data"

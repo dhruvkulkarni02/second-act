@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Second Act</title>
+  <meta name="description" content="A half-time tactical read that checks itself: multi-agent match intelligence over synthetic football data.">
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <div class="brand-text">
+          <strong>Second Act</strong>
+          <span data-i18n="tagline">A half-time read that checks itself</span>
+        </div>
+      </div>
+
+      <div class="scoreboard" id="scoreboard" aria-live="polite">
+        <div class="team home"><span class="swatch" id="home-swatch"></span><span id="home-name">Home</span></div>
+        <div class="score"><span id="home-score">0</span><span class="dash">–</span><span id="away-score">0</span></div>
+        <div class="team away"><span id="away-name">Away</span><span class="swatch" id="away-swatch"></span></div>
+        <div class="clock"><span id="clock">0:00</span><span class="phase" id="phase" data-i18n="prematch">Pre-match</span></div>
+      </div>
+
+      <form class="controls" id="controls" aria-label="Viewer settings">
+        <label><span data-i18n="match">Match</span><select id="match"></select></label>
+        <label><span data-i18n="mode">Mode</span>
+          <select id="audience"><option value="analyst" data-i18n="analyst">Analyst</option><option value="casual" data-i18n="casual">Casual</option></select></label>
+        <label><span data-i18n="language">Language</span>
+          <select id="language"><option value="en">English</option><option value="es">Español</option></select></label>
+        <label><span data-i18n="club">Club</span><select id="focus"><option value="" data-i18n="noclub">None</option></select></label>
+        <label><span data-i18n="speed">Speed</span>
+          <select id="speed"><option value="10">10×</option><option value="30" selected>30×</option><option value="60">60×</option><option value="120">120×</option><option value="300">300×</option></select></label>
+        <button type="button" id="start" class="primary" data-i18n="start">Start replay</button>
+      </form>
+    </header>
+
+    <main class="stage">
+      <section class="pitch-wrap" aria-label="Pitch">
+        <svg id="pitch" viewBox="-4 -4 113 76" role="img" aria-label="Pitch with recent events">
+          <defs>
+            <marker id="arrow" viewBox="0 0 6 6" refX="5" refY="3" markerWidth="4" markerHeight="4" orient="auto"><path d="M0,0 L6,3 L0,6 z" fill="currentColor"/></marker>
+          </defs>
+          <rect class="grass" x="-4" y="-4" width="113" height="76"/>
+          <g class="stripes" id="stripes"></g>
+          <g class="lines">
+            <rect x="0" y="0" width="105" height="68"/>
+            <line x1="52.5" y1="0" x2="52.5" y2="68"/>
+            <circle cx="52.5" cy="34" r="9.15"/>
+            <circle cx="52.5" cy="34" r="0.4" class="spot"/>
+            <rect x="0" y="13.84" width="16.5" height="40.32"/>
+            <rect x="88.5" y="13.84" width="16.5" height="40.32"/>
+            <rect x="0" y="24.84" width="5.5" height="18.32"/>
+            <rect x="99.5" y="24.84" width="5.5" height="18.32"/>
+            <circle cx="11" cy="34" r="0.4" class="spot"/>
+            <circle cx="94" cy="34" r="0.4" class="spot"/>
+            <path d="M16.5,26.69 A9.15,9.15 0 0 1 16.5,41.31"/>
+            <path d="M88.5,26.69 A9.15,9.15 0 0 0 88.5,41.31"/>
+            <rect x="-1.5" y="30.34" width="1.5" height="7.32" class="goal"/>
+            <rect x="105" y="30.34" width="1.5" height="7.32" class="goal"/>
+          </g>
+          <g id="direction"></g>
+          <g id="trail"></g>
+          <circle id="ball" cx="52.5" cy="34" r="1.1"/>
+        </svg>
+
+        <div class="lower-third" id="lower-third" hidden>
+          <div class="lt-kind" id="lt-kind"></div>
+          <div class="lt-body">
+            <div class="lt-headline" id="lt-headline"></div>
+            <div class="lt-text" id="lt-text"></div>
+            <div class="lt-evidence" id="lt-evidence"></div>
+          </div>
+        </div>
+
+        <div class="toast" id="toast" hidden></div>
+
+        <section class="overlay" id="briefing-overlay" hidden aria-label="Half-time briefing">
+          <div class="overlay-card">
+            <div class="overlay-head">
+              <span class="overlay-kicker" data-i18n="halftime">Half-time</span>
+              <h2 id="briefing-headline"></h2>
+              <div class="overlay-meta" id="briefing-meta"></div>
+              <button type="button" class="ghost close" data-close="briefing-overlay" data-i18n="close">Close</button>
+            </div>
+            <div class="briefing-progress" id="briefing-progress" hidden>
+              <span class="spinner" aria-hidden="true"></span><span data-i18n="briefing_in_progress">Briefing in progress: the tactician is drafting and the verifier is checking every number…</span>
+            </div>
+            <div class="team-reads" id="team-reads"></div>
+            <div class="overlay-foot"><button type="button" class="primary" id="resume" hidden data-i18n="continue">Continue to second half</button></div>
+          </div>
+        </section>
+
+        <section class="overlay" id="recap-overlay" hidden aria-label="Full-time recap">
+          <div class="overlay-card">
+            <div class="overlay-head">
+              <span class="overlay-kicker" data-i18n="fulltime">Full time</span>
+              <h2 id="recap-headline"></h2>
+              <div class="overlay-meta" id="recap-meta"></div>
+              <button type="button" class="ghost close" data-close="recap-overlay" data-i18n="close">Close</button>
+            </div>
+            <div class="briefing-progress" id="recap-progress" hidden>
+              <span class="spinner" aria-hidden="true"></span><span data-i18n="recap_in_progress">Recap in progress…</span>
+            </div>
+            <div class="recap-grid" id="recap-body"></div>
+          </div>
+        </section>
+      </section>
+
+      <aside class="side">
+        <section class="panel">
+          <div class="panel-head">
+            <h3 data-i18n="predictions">Predictions</h3>
+            <span class="panel-note" data-i18n="predictions_note">tested live after the break</span>
+          </div>
+          <ol class="predictions" id="predictions"><li class="empty" data-i18n="predictions_empty">Predictions arrive with the half-time briefing.</li></ol>
+        </section>
+        <section class="panel feed-panel">
+          <div class="panel-head">
+            <h3 data-i18n="live_feed">Live feed</h3>
+            <span class="panel-note" id="cue-count"></span>
+          </div>
+          <ol class="feed" id="feed"></ol>
+        </section>
+        <div class="reopen">
+          <button type="button" class="ghost" id="open-briefing" disabled data-i18n="open_briefing">Half-time briefing</button>
+          <button type="button" class="ghost" id="open-recap" disabled data-i18n="open_recap">Full-time recap</button>
+        </div>
+      </aside>
+    </main>
+
+    <footer class="statusbar">
+      <span id="status" data-i18n="status_idle">Choose a match and start the replay.</span>
+      <span class="agents" id="agents"></span>
+    </footer>
+  </div>
+  <script src="/static/i18n.js"></script>
+  <script src="/static/app.js"></script>
+</body>
+</html>

@@ -16,6 +16,7 @@ history, so a client that connects (or reconnects) late replays from the start.
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import json
 import os
 import time
@@ -39,6 +40,7 @@ DATA_DIR = Path(os.environ.get("SECOND_ACT_DATA_DIR", "data"))
 WEB_DIR = Path(os.environ.get("SECOND_ACT_WEB_DIR", "web"))
 MAX_SESSIONS = int(os.environ.get("SECOND_ACT_MAX_SESSIONS", 20))
 SESSION_TTL_S = float(os.environ.get("SECOND_ACT_SESSION_TTL_S", 3600))
+HALFTIME_HOLD_S = float(os.environ.get("SECOND_ACT_HALFTIME_HOLD_S", 15))
 
 
 class SessionRequest(BaseModel):
@@ -47,6 +49,12 @@ class SessionRequest(BaseModel):
     match_id: str = "m-001"
     speed: float = Field(default=30.0, gt=0, le=600, description="Match seconds per real second.")
     offline: bool = False
+
+
+class SpeedRequest(BaseModel):
+    """Change replay speed mid-session."""
+
+    speed: float = Field(gt=0, le=600)
 
 
 @dataclass
@@ -64,7 +72,16 @@ class Session:
     outputs: MatchOutputs | None = None
     runner: MatchRunner | None = None
     changed: asyncio.Condition = field(default_factory=asyncio.Condition)
+    resume: asyncio.Event = field(default_factory=asyncio.Event)
     task: asyncio.Task | None = None
+
+    async def hold(self, phase: str) -> None:
+        """Pause at half-time so viewers can read the briefing (until resumed or timeout)."""
+        if HALFTIME_HOLD_S <= 0:
+            return
+        await self.emit("status", {"phase": phase, "hold_s": HALFTIME_HOLD_S})
+        with contextlib.suppress(TimeoutError):
+            await asyncio.wait_for(self.resume.wait(), timeout=HALFTIME_HOLD_S)
 
     async def emit(self, kind: str, data: dict) -> None:
         async with self.changed:
@@ -72,7 +89,8 @@ class Session:
             self.changed.notify_all()
 
 
-def _pacer(speed: float):
+def _pacer(session: Session):
+    """Sleep between events by match time / the session's (changeable) speed."""
     last: dict[str, tuple[int, float]] = {}
 
     async def pace(period: int, t: float) -> None:
@@ -80,7 +98,7 @@ def _pacer(speed: float):
         last["t"] = (period, t)
         if prev is None or prev[0] != period:
             return
-        delay = (t - prev[1]) / speed
+        delay = (t - prev[1]) / session.speed
         if delay > 0:
             await asyncio.sleep(min(delay, 5.0))
 
@@ -134,7 +152,8 @@ def create_app() -> FastAPI:
                 offline=session.offline,
                 log=log,
                 emit=session.emit,
-                pace=_pacer(session.speed),
+                pace=_pacer(session),
+                hold=session.hold,
                 cache=cache,
             )
             session.runner = runner
@@ -226,6 +245,31 @@ def create_app() -> FastAPI:
             "status": out.recap_status,
             "variants": [v.model_dump(mode="json") for v in out.recap],
         }
+
+    @app.post("/api/sessions/{session_id}/speed")
+    async def set_speed(session_id: str, request: SpeedRequest) -> dict:
+        session = get_session(session_id)
+        session.speed = request.speed
+        return {"session_id": session_id, "speed": session.speed}
+
+    @app.post("/api/sessions/{session_id}/resume")
+    async def resume(session_id: str) -> dict:
+        """End the half-time hold early."""
+        get_session(session_id).resume.set()
+        return {"session_id": session_id, "resumed": True}
+
+    @app.get("/api/sessions/{session_id}/signals")
+    async def signal_values(session_id: str, ids: str = "") -> dict:
+        """Current values of the given signal IDs (comma-separated), for evidence chips."""
+        session = get_session(session_id)
+        signals = session.runner.state.signals if session.runner else None
+        wanted = [i for i in ids.split(",") if i][:200]
+        out = {}
+        for sid in wanted:
+            sig = signals.get(sid) if signals is not None else None
+            if sig is not None:
+                out[sid] = sig.model_dump(mode="json", exclude_none=True)
+        return {"signals": out}
 
     @app.get("/api/sessions/{session_id}/predictions")
     async def predictions(session_id: str) -> dict:
