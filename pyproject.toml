@@ -21,6 +21,7 @@ dev = [
 
 [project.scripts]
 second-act-generate = "second_act.sim.cli:main"
+second-act-signals = "second_act.analytics.cli:main"
 
 [build-system]
 requires = ["hatchling"]
