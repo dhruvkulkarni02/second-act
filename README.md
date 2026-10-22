@@ -4,6 +4,8 @@
 
 Second Act is a multi-agent system that turns a live stream of synthetic football events into explainable match intelligence. Its centrepiece is a half-time briefing that predicts each manager's adjustments as measurable tests, then confirms or rejects them on screen during the second half. Built for the Microsoft × Premier League *Inside the Game* hackathon. See [PRD.md](PRD.md).
 
+**Live demo:** https://second-act.bluecliff-fc92b3c6.swedencentral.azurecontainerapps.io (Azure Container Apps, agents on Microsoft Foundry; see [docs/deploy.md](docs/deploy.md)).
+
 > Status: M1 to M4 are done: synthetic data, analytics, the verified half-time briefing, and second-half prediction checks, live cues, the full-time recap, the presenter's variants and the SSE stream. The full README arrives in M6.
 
 ## Quick start (offline)
