@@ -13,7 +13,8 @@ __pycache__/
 dist/
 build/
 
-# Runtime logs
+# Runtime logs and caches
+.cache/
 logs/*
 !logs/.gitkeep
 

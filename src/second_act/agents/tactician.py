@@ -289,8 +289,12 @@ def _predictions(c: _Ctx, t: str, o: str) -> list[Prediction]:
     if o_share >= 45:
         specs.append(
             dict(
-                claim=f"{tn} reinforce their {FLANK_FACING[o_channel]} side to cut {on}'s "
-                f"{o_channel}-channel entries",
+                claim=(
+                    f"{tn} crowd the middle to cut {on}'s central entries"
+                    if o_channel == "centre"
+                    else f"{tn} reinforce their {FLANK_FACING[o_channel]} side to cut {on}'s "
+                    f"{o_channel}-channel entries"
+                ),
                 metric="channel_entries",
                 subject_team=o,
                 scope={"channel": o_channel},
@@ -380,6 +384,16 @@ def _predictions(c: _Ctx, t: str, o: str) -> list[Prediction]:
             evidence=[c.sid("progressive_passes", t)],
         )
     )
+    from second_act.agents.verifier import baseline_problem
+
+    specs = [
+        spec
+        for spec in specs
+        if baseline_problem(
+            spec["metric"], spec["subject_team"], spec["scope"].get("channel"), c.signals
+        )
+        is None
+    ]
     return [
         Prediction(
             prediction_id=f"p-{t}-{i}",

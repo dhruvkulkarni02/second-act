@@ -35,7 +35,7 @@ Three seeded matches between two fictional clubs, Harbour Town and Kestrel Athle
 
 ## Half-time briefing
 
-At the half-time whistle a Microsoft Agent Framework workflow runs. The tactician, on a Foundry model, drafts the briefing: what's working for each team, plus predicted adjustments written as measurable tests. The verifier rejects any draft whose numbers can't be traced to a cited signal or whose claims its evidence doesn't support. Rejected drafts are retried or replaced by a template built directly from the signals. See [docs/agents.md](docs/agents.md).
+At the half-time whistle a Microsoft Agent Framework workflow runs. The tactician, on a Foundry model, drafts the briefing: what's working for each team, plus predicted adjustments written as measurable tests. The verifier rejects any draft whose numbers can't be traced to a cited signal or whose claims its evidence doesn't support. The verifier removes individual unsupported claims where it can. Otherwise it sends the draft back for a retry, or falls back to a template built directly from the signals. Verified briefings are cached per match and model, so replays don't call the model again. See [docs/agents.md](docs/agents.md).
 
 ```bash
 second-act-halftime m-001            # online (Foundry)

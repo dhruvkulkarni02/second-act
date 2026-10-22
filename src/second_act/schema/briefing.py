@@ -45,3 +45,7 @@ class Briefing(BriefingDraft):
     source: Literal["model", "template"]
     attempts: int = Field(ge=1, description="Drafts written, including rejected ones.")
     fallback_reason: str | None = None
+    removed_claims: list[str] = Field(
+        default_factory=list,
+        description="Claims the verifier removed (with reasons) rather than reject the draft.",
+    )

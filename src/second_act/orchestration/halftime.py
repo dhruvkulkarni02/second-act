@@ -35,14 +35,17 @@ from second_act.agents.verifier import (
     ModelSupportChecker,
     check_briefing,
     normalize_draft,
+    prune,
 )
 from second_act.orchestration.agent_log import AgentLog, usage_fields
+from second_act.orchestration.cache import BriefingCache, briefing_key
 from second_act.orchestration.foundry import FoundrySettings, build_chat_client
 from second_act.schema.briefing import Briefing, BriefingDraft
 from second_act.state.match_state import MatchState
 
 MAX_RETRIES = 2
 DEFAULT_BUDGET_S = 25.0
+SUPPORT_CHECK_ESTIMATE_S = 8.0
 
 
 class Drafter(Protocol):
@@ -207,6 +210,55 @@ class VerifierExecutor(Executor):
         super().__init__(id="verifier")
         self.run, self.supporter = run, supporter
 
+    def _briefing(self, draft: BriefingDraft, source: str, removed: list[str] | None = None):
+        return Briefing(
+            **draft.model_dump(),
+            source=source,  # type: ignore[arg-type]
+            attempts=self.run.drafts_written,
+            removed_claims=removed or [],
+        )
+
+    async def _repair(
+        self,
+        message: DraftMessage,
+        drafts: list[BriefingDraft | None],
+        issues: list[list[Issue]],
+        layers: list[str],
+    ) -> Briefing | None:
+        """Drop the failing claims instead of the whole draft, when the rest still stands.
+
+        Candidates rejected by the model check are pruned and accepted directly: their other
+        claims were already judged supported. Candidates rejected by the deterministic layer
+        are pruned and then model-checked, if the budget still allows a support check.
+        """
+        state, log = self.run.state, self.run.log
+        order = sorted(range(len(drafts)), key=lambda i: (layers[i] != "model", len(issues[i])))
+        for i in order:
+            draft = drafts[i]
+            if draft is None:
+                continue
+            result = prune(draft, issues[i])
+            if result is None:
+                continue
+            pruned, removed = result
+            if not check_briefing(pruned, state.signals, state.meta).ok:
+                continue
+            if layers[i] != "model" and self.supporter is not None:
+                if self.run.elapsed() + SUPPORT_CHECK_ESTIMATE_S > self.run.budget_s:
+                    continue
+                found = await self._support(pruned, message.attempt, i)
+                if found:
+                    second = prune(pruned, found)
+                    if (
+                        second is None
+                        or not check_briefing(second[0], state.signals, state.meta).ok
+                    ):
+                        continue
+                    pruned, removed = second[0], removed + second[1]
+            log.record("verifier", "pruned", attempt=message.attempt, candidate=i, removed=removed)
+            return self._briefing(pruned, message.candidates[i].source, removed)
+        return None
+
     async def _support(self, draft: BriefingDraft, attempt: int, index: int) -> list[Issue]:
         log = self.run.log
         assert self.supporter is not None
@@ -272,12 +324,11 @@ class VerifierExecutor(Executor):
         if winner is not None:
             draft = drafts[winner]
             assert draft is not None
-            briefing = Briefing(
-                **draft.model_dump(),
-                source=message.candidates[winner].source,  # type: ignore[arg-type]
-                attempts=self.run.drafts_written,
-            )
-            await ctx.yield_output(briefing)
+            await ctx.yield_output(self._briefing(draft, message.candidates[winner].source))
+            return
+        repaired = await self._repair(message, drafts, issues, layers)
+        if repaired is not None:
+            await ctx.yield_output(repaired)
             return
         # Predictive budget: retry only if another round like the last one still fits.
         out_of_time = self.run.elapsed() + self.run.last_draft_s > self.run.budget_s
@@ -374,8 +425,24 @@ async def run_halftime(
     supporter: SupportChecker | None = None,
     budget_s: float | None = None,
     parallel_drafts: int | None = None,
+    cache: BriefingCache | None = None,
 ) -> Briefing:
-    """Produce the verified half-time briefing and store it (and its predictions) in the state."""
+    """Produce the verified half-time briefing and store it (and its predictions) in the state.
+
+    With a ``cache``, an online briefing already verified for the same events, model and
+    prompt version is reused without calling the model.
+    """
+    key = None
+    if cache is not None and not offline and drafter is None:
+        settings = FoundrySettings.from_env()
+        key = briefing_key(state, settings.model, settings.reasoning_effort)
+        cached = cache.get(key)
+        if cached is not None:
+            _store(state, cached)
+            log.record(
+                "workflow", "cache_hit", key=key, source=cached.source, attempts=cached.attempts
+            )
+            return cached
     if drafter is None:
         if offline:
             drafter = TemplateDrafter()
@@ -397,8 +464,7 @@ async def run_halftime(
     if not outputs:
         raise RuntimeError("half-time workflow produced no briefing")
     briefing: Briefing = outputs[-1]
-    state.briefing = briefing
-    state.predictions = [p for read in briefing.teams for p in read.predictions]
+    _store(state, briefing)
     log.record(
         "workflow",
         "halftime_done",
@@ -407,4 +473,12 @@ async def run_halftime(
         fallback_reason=briefing.fallback_reason,
         latency_s=round(time.perf_counter() - started, 2),
     )
+    if cache is not None and key is not None:
+        path = cache.put(key, briefing, log.summary())
+        log.record("workflow", "cache_store", key=key, path=str(path))
     return briefing
+
+
+def _store(state: MatchState, briefing: Briefing) -> None:
+    state.briefing = briefing
+    state.predictions = [p for read in briefing.teams for p in read.predictions]
