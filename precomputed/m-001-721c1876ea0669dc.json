@@ -1,0 +1,223 @@
+{
+ "key": "m-001-721c1876ea0669dc",
+ "briefing": {
+  "headline": "Harbour Town dominate proceedings by pressing high and attacking down their left; Kestrel have had rare moments down their right but are overwhelmed in territory and chance creation.",
+  "headline_evidence": [
+   "sig-field_tilt-HAR-p1",
+   "sig-ppda-HAR-p1",
+   "sig-channel_share-HAR-left-p1",
+   "sig-high_regains-HAR-p1",
+   "sig-xg-HAR-p1",
+   "sig-channel_share-KES-right-p1"
+  ],
+  "teams": [
+   {
+    "team": "HAR",
+    "working": [
+     {
+      "text": "Harbour are controlling the game and territory: their field tilt is 78.2% and they have 55.2% possession.",
+      "evidence": [
+       "sig-field_tilt-HAR-p1",
+       "sig-possession-HAR-p1"
+      ]
+     },
+     {
+      "text": "They press aggressively (PPDA 3.1) and win the ball very high (turnover height 54.8 m), producing 19 high regains which feed attacking chances.",
+      "evidence": [
+       "sig-ppda-HAR-p1",
+       "sig-turnover_height-HAR-p1",
+       "sig-high_regains-HAR-p1"
+      ]
+     },
+     {
+      "text": "Harbour are creating the better openings: 0.75 xG with seven shots and three on target.",
+      "evidence": [
+       "sig-xg-HAR-p1",
+       "sig-shots-HAR-p1",
+       "sig-shots_on_target-HAR-p1"
+      ]
+     }
+    ],
+    "not_working": [
+     {
+      "text": "Harbour are heavily channelled to the left for entries\u201470.6% of their final-third entries come down the left\u2014making their attacking patterns predictable.",
+      "evidence": [
+       "sig-channel_share-HAR-left-p1"
+      ]
+     },
+     {
+      "text": "Their press intensity may be hard to sustain: the system shows a very low PPDA (3.1) which typically rises as legs tire.",
+      "evidence": [
+       "sig-ppda-HAR-p1"
+      ]
+     }
+    ],
+    "predictions": [
+     {
+      "prediction_id": "p-HAR-1",
+      "team": "HAR",
+      "claim": "Harbour will look to reduce Kestrel's influence down Kestrel's right by forcing Kestrel to attack narrower, cutting Kestrel's right-channel entries by at least 30%.",
+      "metric": "channel_entries",
+      "subject_team": "KES",
+      "scope": {
+       "channel": "right"
+      },
+      "comparison": "second_half_window_mean_vs_first_half_mean",
+      "direction": "decrease",
+      "threshold_pct": 30.0,
+      "evaluate_after_minute": 65,
+      "status": "open",
+      "evidence": [
+       "sig-channel_share-KES-right-p1",
+       "sig-channel_entries-KES-right-p1"
+      ]
+     },
+     {
+      "prediction_id": "p-HAR-2",
+      "team": "HAR",
+      "claim": "Harbour's press intensity will ease and their PPDA will increase by at least 20% as they manage legs.",
+      "metric": "ppda",
+      "subject_team": "HAR",
+      "scope": {},
+      "comparison": "second_half_window_mean_vs_first_half_mean",
+      "direction": "increase",
+      "threshold_pct": 20.0,
+      "evaluate_after_minute": 65,
+      "status": "open",
+      "evidence": [
+       "sig-ppda-HAR-p1"
+      ]
+     },
+     {
+      "prediction_id": "p-HAR-3",
+      "team": "HAR",
+      "claim": "Harbour will push to keep attacking volume up and increase their final-third entries by at least 20%.",
+      "metric": "final_third_entries",
+      "subject_team": "HAR",
+      "scope": {},
+      "comparison": "second_half_window_mean_vs_first_half_mean",
+      "direction": "increase",
+      "threshold_pct": 20.0,
+      "evaluate_after_minute": 65,
+      "status": "open",
+      "evidence": [
+       "sig-final_third_entries-HAR-p1"
+      ]
+     }
+    ]
+   },
+   {
+    "team": "KES",
+    "working": [
+     {
+      "text": "Kestrel have occasional success attacking the right: 58.3% of their entries come down the right flank.",
+      "evidence": [
+       "sig-channel_share-KES-right-p1"
+      ]
+     },
+     {
+      "text": "They remain relatively compact out of possession with a lower defensive line (22.8 m) which limits space behind them.",
+      "evidence": [
+       "sig-def_line_height-KES-p1"
+      ]
+     },
+     {
+      "text": "Kestrel's progressive passing tally (68) and some individual passing combinations show they can progress the ball even if chances are few (xG 0.04).",
+      "evidence": [
+       "sig-progressive_passes-KES-p1",
+       "sig-xg-KES-p1"
+      ]
+     }
+    ],
+    "not_working": [
+     {
+      "text": "Kestrel are being overrun in territory and chance creation: field tilt for Harbour is 78.2% and Harbour have 0.75 xG versus Kestrel's 0.04.",
+      "evidence": [
+       "sig-field_tilt-HAR-p1",
+       "sig-xg-HAR-p1",
+       "sig-xg-KES-p1"
+      ]
+     },
+     {
+      "text": "They are losing the ball high up\u2014Kestrel have only three high regains while Harbour have nineteen\u2014and are being pressed lightly (PPDA 11.2) compared with Harbour's intense press.",
+      "evidence": [
+       "sig-high_regains-KES-p1",
+       "sig-high_regains-HAR-p1",
+       "sig-ppda-KES-p1",
+       "sig-ppda-HAR-p1"
+      ]
+     }
+    ],
+    "predictions": [
+     {
+      "prediction_id": "p-KES-1",
+      "team": "KES",
+      "claim": "Gregor Molina will instruct Kestrel to sit one midfielder deeper to disrupt Harbour's high regains, cutting Harbour's high_regains by at least 30%.",
+      "metric": "high_regains",
+      "subject_team": "HAR",
+      "scope": {},
+      "comparison": "second_half_window_mean_vs_first_half_mean",
+      "direction": "decrease",
+      "threshold_pct": 30.0,
+      "evaluate_after_minute": 65,
+      "status": "open",
+      "evidence": [
+       "sig-high_regains-HAR-p1"
+      ]
+     },
+     {
+      "prediction_id": "p-KES-2",
+      "team": "KES",
+      "claim": "Kestrel will try to regain more control of possession and push for at least a 10% rise in their possession share.",
+      "metric": "possession",
+      "subject_team": "KES",
+      "scope": {},
+      "comparison": "second_half_window_mean_vs_first_half_mean",
+      "direction": "increase",
+      "threshold_pct": 10.0,
+      "evaluate_after_minute": 65,
+      "status": "open",
+      "evidence": [
+       "sig-possession-KES-p1"
+      ]
+     },
+     {
+      "prediction_id": "p-KES-3",
+      "team": "KES",
+      "claim": "Kestrel will try to protect their right flank less vulnerably by reducing Harbour's left-channel entries by at least 30%.",
+      "metric": "channel_entries",
+      "subject_team": "HAR",
+      "scope": {
+       "channel": "left"
+      },
+      "comparison": "second_half_window_mean_vs_first_half_mean",
+      "direction": "decrease",
+      "threshold_pct": 30.0,
+      "evaluate_after_minute": 65,
+      "status": "open",
+      "evidence": [
+       "sig-channel_share-HAR-left-p1",
+       "sig-channel_entries-HAR-left-p1"
+      ]
+     }
+    ]
+   }
+  ],
+  "source": "model",
+  "attempts": 2,
+  "fallback_reason": null,
+  "removed_claims": []
+ },
+ "log": {
+  "drafts": 2,
+  "rejections": 0,
+  "issues_caught": 0,
+  "fallbacks": 0,
+  "claims_removed": 0,
+  "model_calls": 4,
+  "tokens_in": 15799,
+  "tokens_out": 4591,
+  "model_latency_s": 41.91,
+  "workflow_latency_s": 21.66
+ }
+}

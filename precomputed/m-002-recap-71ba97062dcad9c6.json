@@ -1,0 +1,159 @@
+{
+ "key": "m-002-recap-71ba97062dcad9c6",
+ "briefing": {
+  "headline": "Kestrel\u2019s press and high turnovers couldn\u2019t stop Harbour\u2019s central threat; Harbour extended control after the break",
+  "headline_evidence": [
+   "sig-ppda_wmean-KES-p1",
+   "sig-high_regains_wmean-KES-p1",
+   "sig-channel_entries_wmean-HAR-centre-p1",
+   "sig-goals-HAR-p1",
+   "sig-goals-HAR-p2"
+  ],
+  "first_half": [
+   {
+    "text": "Harbour consistently attacked through the centre and converted that threat into goals (two in the first half).",
+    "evidence": [
+     "sig-channel_entries_wmean-HAR-centre-p1",
+     "sig-goals-HAR-p1"
+    ]
+   },
+   {
+    "text": "Kestrel pressed high and recovered balls often but could not turn that into scores, arriving in the final third more frequently without scoring.",
+    "evidence": [
+     "sig-ppda_wmean-KES-p1",
+     "sig-high_regains_wmean-KES-p1",
+     "sig-final_third_entries_wmean-KES-p1",
+     "sig-goals-KES-p1"
+    ]
+   }
+  ],
+  "changes": [
+   {
+    "text": "Harbour shifted more activity into the centre and left after the break: centre entries rose from 1.11 to 1.22 per_window and left entries from 0.67 to 1 per_window.",
+    "evidence": [
+     "sig-channel_entries_wmean-HAR-centre-p1",
+     "sig-channel_entries_wmean-HAR-centre-p2",
+     "sig-channel_entries_wmean-HAR-left-p1",
+     "sig-channel_entries_wmean-HAR-left-p2"
+    ]
+   },
+   {
+    "text": "Kestrel\u2019s pressing eased in the second half: their PPDA rose from 4.9 to 5.9 (per five-minute-window average), reflecting less aggressive pressing.",
+    "evidence": [
+     "sig-ppda_wmean-KES-p1",
+     "sig-ppda_wmean-KES-p2"
+    ]
+   },
+   {
+    "text": "Harbour increased final-third activity and possession in the attacking third after the break, with final-third entries rising from 2.33 to 3.11 per_window and final-third possession from 51.5% to 64.7%.",
+    "evidence": [
+     "sig-final_third_entries_wmean-HAR-p1",
+     "sig-final_third_entries_wmean-HAR-p2",
+     "sig-possession-HAR-final_third-p1",
+     "sig-possession-HAR-final_third-p2"
+    ]
+   }
+  ],
+  "predictions": [
+   {
+    "prediction_id": "p-KES-1",
+    "status": "contradicted",
+    "text": "Gregor Molina would try to force Harbour wider by crowding midfield, reducing Harbour\u2019s central entries.",
+    "evidence": [
+     "sig-channel_entries_wmean-HAR-centre-p1",
+     "sig-channel_entries_wmean-HAR-centre-p2"
+    ]
+   },
+   {
+    "prediction_id": "p-KES-2",
+    "status": "confirmed",
+    "text": "Kestrel\u2019s press would ease and PPDA would rise (4.9 -> 5.9 per_window).",
+    "evidence": [
+     "sig-ppda_wmean-KES-p1",
+     "sig-ppda_wmean-KES-p2"
+    ]
+   },
+   {
+    "prediction_id": "p-KES-3",
+    "status": "contradicted",
+    "text": "Kestrel would push to increase final-third entries substantially; their entries rose only from 3.56 to 3.67 per_window.",
+    "evidence": [
+     "sig-final_third_entries_wmean-KES-p1",
+     "sig-final_third_entries_wmean-KES-p2"
+    ]
+   },
+   {
+    "prediction_id": "p-HAR-1",
+    "status": "contradicted",
+    "text": "Harbour would markedly increase progressive passes to punish spaces; the progressive-pass signal did not show the predicted jump.",
+    "evidence": [
+     "sig-progressive_passes_wmean-HAR-p1",
+     "sig-progressive_passes_wmean-HAR-p2"
+    ]
+   },
+   {
+    "prediction_id": "p-HAR-2",
+    "status": "confirmed",
+    "text": "Harbour would increase final-third entries to keep Kestrel under pressure; entries rose from 2.33 to 3.11 per_window.",
+    "evidence": [
+     "sig-final_third_entries_wmean-HAR-p1",
+     "sig-final_third_entries_wmean-HAR-p2"
+    ]
+   }
+  ],
+  "result": [
+   {
+    "text": "Harbour converted central and final-third control into three goals across the match (two in the first half, one in the second).",
+    "evidence": [
+     "sig-channel_share-HAR-centre-p1",
+     "sig-final_third_entries-HAR-p1",
+     "sig-final_third_entries-HAR-p2",
+     "sig-goals-HAR-p1",
+     "sig-goals-HAR-p2"
+    ]
+   },
+   {
+    "text": "Kestrel\u2019s early pressing and high turnovers produced recoveries but no goals; they kept similar shot volumes across the game yet finished with zero goals.",
+    "evidence": [
+     "sig-high_regains_wmean-KES-p1",
+     "sig-high_regains_wmean-KES-p2",
+     "sig-shots-KES-p1",
+     "sig-shots-KES-p2",
+     "sig-goals-KES-p1",
+     "sig-goals-KES-p2"
+    ]
+   },
+   {
+    "text": "The half-time swing\u2014Kestrel easing their press while Harbour increased central and left-channel entries and final-third possession\u2014explains Harbour\u2019s control and the 0-3 final score.",
+    "evidence": [
+     "sig-ppda_wmean-KES-p1",
+     "sig-ppda_wmean-KES-p2",
+     "sig-channel_entries_wmean-HAR-centre-p1",
+     "sig-channel_entries_wmean-HAR-centre-p2",
+     "sig-channel_entries_wmean-HAR-left-p1",
+     "sig-channel_entries_wmean-HAR-left-p2",
+     "sig-possession-HAR-final_third-p1",
+     "sig-possession-HAR-final_third-p2",
+     "sig-goals-HAR-p1",
+     "sig-goals-HAR-p2"
+    ]
+   }
+  ],
+  "source": "model",
+  "attempts": 4,
+  "fallback_reason": null,
+  "removed_claims": []
+ },
+ "log": {
+  "drafts": 6,
+  "rejections": 3,
+  "issues_caught": 3,
+  "fallbacks": 0,
+  "claims_removed": 0,
+  "model_calls": 23,
+  "tokens_in": 37601,
+  "tokens_out": 12943,
+  "model_latency_s": 141.37,
+  "workflow_latency_s": 51.02
+ }
+}

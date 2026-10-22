@@ -485,6 +485,12 @@ PHRASES: dict[str, tuple[str, str, str, str]] = {
         "Final: {hn} {g1}, {an} {g2}.",
         "Resultado final: {hn} {g1}, {an} {g2}.",
     ),
+    "r_red": (
+        "{tn} finished a man down after a red card.",
+        "{tn} had a player sent off.",
+        "{tn} terminó con uno menos tras una expulsión.",
+        "{tn} se quedó con uno menos.",
+    ),
     "r_possession": (
         "{tn} had {poss}% of the ball after the break.",
         "{tn} had {poss}% of the ball after the break.",

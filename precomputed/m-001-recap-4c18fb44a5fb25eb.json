@@ -1,0 +1,182 @@
+{
+ "key": "m-001-recap-4c18fb44a5fb25eb",
+ "briefing": {
+  "headline": "Harbour's first-half pressing and left-side overload gave way to a more balanced second half as Kestrel recovered territory and scored a late equaliser.",
+  "headline_evidence": [
+   "sig-high_regains_wmean-HAR-p1",
+   "sig-channel_share-HAR-left-p1",
+   "sig-xg-HAR-p1",
+   "sig-final_third_entries-KES-p2",
+   "sig-xg-KES-p2",
+   "sig-goals-KES-p2"
+  ],
+  "first_half": [
+   {
+    "text": "Harbour dominated territory and attacks down their left, registering the vast majority of entries and share on that side while generating the better chance total and xG.",
+    "evidence": [
+     "sig-channel_entries_wmean-HAR-left-p1",
+     "sig-channel_share-HAR-left-p1",
+     "sig-final_third_entries-HAR-p1",
+     "sig-shots-HAR-p1",
+     "sig-xg-HAR-p1"
+    ]
+   },
+   {
+    "text": "That dominance was built on an aggressive high press and frequent high regains, forcing Kestrel into deep and narrow defending.",
+    "evidence": [
+     "sig-ppda_wmean-HAR-p1",
+     "sig-high_regains_wmean-HAR-p1",
+     "sig-def_line_height-KES-p1",
+     "sig-field_tilt-HAR-p1"
+    ]
+   },
+   {
+    "text": "Kestrel were limited to sporadic counter chances mainly down their right flank and had very low chance output and xG.",
+    "evidence": [
+     "sig-channel_entries_wmean-KES-right-p1",
+     "sig-channel_share-KES-right-p1",
+     "sig-final_third_entries-KES-p1",
+     "sig-xg-KES-p1",
+     "sig-shots-KES-p1"
+    ]
+   }
+  ],
+  "changes": [
+   {
+    "text": "Kestrel shifted to greater central and right-side progression, increasing their centre and right-channel entries and substantially lifting their final-third entries and xG in the second half.",
+    "evidence": [
+     "sig-channel_entries_wmean-KES-centre-p2",
+     "sig-channel_entries_wmean-KES-right-p2",
+     "sig-final_third_entries-KES-p2",
+     "sig-xg-KES-p2",
+     "sig-shots-KES-p2"
+    ]
+   },
+   {
+    "text": "Harbour relaxed their press and retreated slightly from left-side overload: their PPDA rose and left-channel entries and channel share fell after the break.",
+    "evidence": [
+     "sig-ppda_wmean-HAR-p1",
+     "sig-ppda_wmean-HAR-p2",
+     "sig-channel_entries_wmean-HAR-left-p1",
+     "sig-channel_entries_wmean-HAR-left-p2",
+     "sig-channel_share-HAR-left-p1",
+     "sig-channel_share-HAR-left-p2"
+    ]
+   },
+   {
+    "text": "Territory swung toward Kestrel in the middle and final third as possession distribution and centre-channel share moved in their favour.",
+    "evidence": [
+     "sig-possession_wmean-KES-p1",
+     "sig-possession_wmean-KES-p2",
+     "sig-possession-KES-final_third-p1",
+     "sig-possession-KES-final_third-p2",
+     "sig-channel_share-KES-centre-p1",
+     "sig-channel_share-KES-centre-p2"
+    ]
+   }
+  ],
+  "predictions": [
+   {
+    "prediction_id": "p-HAR-1",
+    "status": "contradicted",
+    "text": "Harbour would cut Kestrel's right-channel entries by at least 30%, but Kestrel's right-channel entries rose after the break.",
+    "evidence": [
+     "sig-channel_entries_wmean-KES-right-p1",
+     "sig-channel_entries_wmean-KES-right-p2"
+    ]
+   },
+   {
+    "prediction_id": "p-HAR-2",
+    "status": "confirmed",
+    "text": "Harbour's press intensity would ease and their PPDA would rise by at least 20%, which occurred.",
+    "evidence": [
+     "sig-ppda_wmean-HAR-p1",
+     "sig-ppda_wmean-HAR-p2"
+    ]
+   },
+   {
+    "prediction_id": "p-HAR-3",
+    "status": "contradicted",
+    "text": "Harbour would increase final-third entries by at least 20%, but their final-third entry rate fell after the break.",
+    "evidence": [
+     "sig-final_third_entries_wmean-HAR-p1",
+     "sig-final_third_entries_wmean-HAR-p2"
+    ]
+   },
+   {
+    "prediction_id": "p-KES-1",
+    "status": "contradicted",
+    "text": "Kestrel would cut Harbour's high regains by at least 30%, but Harbour's high regains per-window barely changed.",
+    "evidence": [
+     "sig-high_regains_wmean-HAR-p1",
+     "sig-high_regains_wmean-HAR-p2"
+    ]
+   },
+   {
+    "prediction_id": "p-KES-2",
+    "status": "contradicted",
+    "text": "Kestrel would gain at least a 10% possession rise, but their possession barely increased.",
+    "evidence": [
+     "sig-possession_wmean-KES-p1",
+     "sig-possession_wmean-KES-p2"
+    ]
+   },
+   {
+    "prediction_id": "p-KES-3",
+    "status": "confirmed",
+    "text": "Kestrel would blunt Harbour's left flank and reduce Harbour's left-channel entries by at least 30%, which happened.",
+    "evidence": [
+     "sig-channel_entries_wmean-HAR-left-p1",
+     "sig-channel_entries_wmean-HAR-left-p2"
+    ]
+   }
+  ],
+  "result": [
+   {
+    "text": "Harbour's first-half pressure produced the opening goal, reflected in their higher early chance volume and xG, but they could not maintain the same volume after the break.",
+    "evidence": [
+     "sig-goals-HAR-p1",
+     "sig-xg-HAR-p1",
+     "sig-final_third_entries_wmean-HAR-p1",
+     "sig-final_third_entries_wmean-HAR-p2"
+    ]
+   },
+   {
+    "text": "Kestrel's second-half adjustment \u2014 more centre progression, more entries and a jump in xG \u2014 delivered an equaliser and forced the draw.",
+    "evidence": [
+     "sig-final_third_entries-KES-p2",
+     "sig-xg-KES-p2",
+     "sig-goals-KES-p2",
+     "sig-channel_share-KES-centre-p2"
+    ]
+   },
+   {
+    "text": "Overall the game swung from Harbour-controlled pressure and left-side overload to a more balanced second half where Kestrel grew into the game and salvaged a 1-1 finish.",
+    "evidence": [
+     "sig-field_tilt-HAR-p1",
+     "sig-field_tilt-HAR-p2",
+     "sig-possession_wmean-HAR-p1",
+     "sig-possession_wmean-HAR-p2",
+     "sig-goals-HAR-p1",
+     "sig-goals-KES-p2"
+    ]
+   }
+  ],
+  "source": "model",
+  "attempts": 2,
+  "fallback_reason": null,
+  "removed_claims": []
+ },
+ "log": {
+  "drafts": 4,
+  "rejections": 0,
+  "issues_caught": 0,
+  "fallbacks": 0,
+  "claims_removed": 0,
+  "model_calls": 18,
+  "tokens_in": 30539,
+  "tokens_out": 12375,
+  "model_latency_s": 136.71,
+  "workflow_latency_s": 46.49
+ }
+}
