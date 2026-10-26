@@ -123,7 +123,7 @@ No real data is in this repository or the demo.
 
 ```bash
 uv venv --python 3.12 && uv pip install -e ".[dev]"
-pytest                                        # offline: no model calls (about 130 tests)
+pytest                                        # offline: no model calls (134 tests)
 second-act-generate generate                  # regenerate the synthetic matches (deterministic)
 second-act-signals m-001                      # signal summary
 second-act-halftime m-001 --offline           # half-time briefing without a model
