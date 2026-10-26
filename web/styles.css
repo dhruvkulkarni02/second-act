@@ -29,10 +29,21 @@ button, select { font: inherit; color: inherit; }
 .app { display: grid; grid-template-rows: auto 1fr auto; height: 100vh; min-height: 640px; }
 
 /* ----- top bar ----- */
+/* Two rows by default (brand + scoreboard, then controls); one row only where the
+   controls genuinely fit beside the scoreboard, so nothing can overlap. */
 .topbar {
-  display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 24px;
+  display: grid; align-items: center; gap: 12px 24px;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  grid-template-areas: "brand score ." "controls controls controls";
   padding: 14px 24px; background: linear-gradient(180deg, #0e1730, #0b1224);
   border-bottom: 1px solid var(--line);
+}
+.brand { grid-area: brand; }
+.scoreboard { grid-area: score; }
+.controls { grid-area: controls; }
+@media (min-width: 1820px) {
+  .topbar { grid-template-columns: auto minmax(0, 1fr) auto; grid-template-areas: "brand score controls"; }
+  .topbar .controls { justify-content: end; }
 }
 .brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
 .brand-mark {
@@ -43,7 +54,7 @@ button, select { font: inherit; color: inherit; }
 }
 .brand-text { display: flex; flex-direction: column; }
 .brand-text strong { font-size: 18px; letter-spacing: 0.02em; }
-.brand-text span { font-size: 12px; color: var(--muted); }
+.brand-text span { font-size: 12px; color: var(--muted); white-space: nowrap; }
 
 .scoreboard {
   justify-self: center; display: grid; grid-template-columns: auto auto auto auto; align-items: center;
@@ -62,7 +73,7 @@ button, select { font: inherit; color: inherit; }
 .clock #clock { font-size: 22px; font-weight: 800; font-variant-numeric: tabular-nums; }
 .clock .phase { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; }
 
-.controls { display: flex; gap: 10px; align-items: end; flex-wrap: wrap; justify-content: end; }
+.controls { display: flex; gap: 10px; align-items: end; flex-wrap: wrap; justify-content: center; }
 .controls label { display: flex; flex-direction: column; gap: 3px; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
 .controls select {
   background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 7px 10px;
@@ -208,7 +219,8 @@ button:focus-visible, select:focus-visible { outline: 2px solid var(--accent); o
 
 /* ----- smaller screens ----- */
 @media (max-width: 1280px) {
-  .topbar { grid-template-columns: 1fr; justify-items: center; }
+  .topbar { grid-template-columns: minmax(0, 1fr); grid-template-areas: "brand" "score" "controls";
+            justify-items: center; }
   .controls { justify-content: center; }
   .stage { grid-template-columns: 1fr; }
   .side { grid-template-rows: auto auto auto; }

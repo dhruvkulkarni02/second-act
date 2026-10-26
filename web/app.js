@@ -489,7 +489,9 @@
 
   async function start() {
     if (source) { source.close(); source = null; }
+    const matchList = state.matchList;
     Object.assign(state, freshState());
+    state.matchList = matchList;
     Object.keys(signalValues).forEach((k) => delete signalValues[k]);
     $("trail").innerHTML = "";
     $("lower-third").hidden = true;
@@ -542,8 +544,20 @@
       list.forEach((m) => { const o = el("option", "", `${m.title}`); o.value = m.match_id; select.appendChild(o); });
       select.value = list.some((m) => m.match_id === prefs.match) ? prefs.match : (list[0] && list[0].match_id);
       prefs.match = select.value;
+      state.matchList = list;
+      previewTeams();
     } catch { /* stays empty */ }
   }
+  // Before kickoff, show the selected match's clubs (from its title) instead of Home/Away.
+  function previewTeams() {
+    if (state.meta || !state.matchList) return;
+    const m = state.matchList.find((x) => x.match_id === prefs.match);
+    if (!m) return;
+    const [home, away] = m.title.replace(/\s*\(.*\)\s*$/, "").split(" v ");
+    $("home-name").textContent = (home || m.home).split(" ")[0];
+    $("away-name").textContent = (away || m.away).split(" ")[0];
+  }
+
   function bindControls() {
     ["audience", "language", "focus"].forEach((id) => {
       $(id).value = prefs[id];
@@ -565,7 +579,7 @@
         });
       }
     });
-    $("match").addEventListener("change", () => { prefs.match = $("match").value; savePrefs(); });
+    $("match").addEventListener("change", () => { prefs.match = $("match").value; savePrefs(); previewTeams(); });
     $("start").addEventListener("click", start);
     document.querySelectorAll("[data-close]").forEach((btn) => btn.addEventListener("click", () => { $(btn.dataset.close).hidden = true; }));
     $("resume").addEventListener("click", () => {
