@@ -6,81 +6,81 @@
       "match_id": "m-001",
       "run": 0,
       "source": "model",
-      "drafts": 2,
+      "drafts": 1,
       "removed_claims": 2,
-      "latency_s": 27.9,
-      "tokens_in": 16372,
-      "tokens_out": 4566
+      "latency_s": 34.2,
+      "tokens_in": 8045,
+      "tokens_out": 2314
     },
     {
       "match_id": "m-001",
       "run": 1,
       "source": "model",
       "drafts": 2,
-      "removed_claims": 1,
-      "latency_s": 25.5,
-      "tokens_in": 16308,
-      "tokens_out": 4560
+      "removed_claims": 0,
+      "latency_s": 20.8,
+      "tokens_in": 16167,
+      "tokens_out": 4137
     },
     {
       "match_id": "m-001",
       "run": 2,
       "source": "model",
       "drafts": 2,
-      "removed_claims": 3,
-      "latency_s": 32.5,
-      "tokens_in": 16438,
-      "tokens_out": 4573
+      "removed_claims": 2,
+      "latency_s": 24.9,
+      "tokens_in": 16508,
+      "tokens_out": 4708
     },
     {
       "match_id": "m-002",
       "run": 0,
       "source": "model",
       "drafts": 2,
-      "removed_claims": 2,
-      "latency_s": 25.7,
-      "tokens_in": 16668,
-      "tokens_out": 4618
+      "removed_claims": 3,
+      "latency_s": 23.3,
+      "tokens_in": 16398,
+      "tokens_out": 4578
     },
     {
       "match_id": "m-002",
       "run": 1,
       "source": "model",
       "drafts": 2,
-      "removed_claims": 1,
-      "latency_s": 21.6,
-      "tokens_in": 16190,
-      "tokens_out": 3615
+      "removed_claims": 3,
+      "latency_s": 22.0,
+      "tokens_in": 15906,
+      "tokens_out": 4302
     },
     {
       "match_id": "m-002",
       "run": 2,
       "source": "model",
       "drafts": 2,
-      "removed_claims": 1,
-      "latency_s": 26.3,
-      "tokens_in": 16071,
-      "tokens_out": 4190
+      "removed_claims": 3,
+      "latency_s": 20.0,
+      "tokens_in": 16005,
+      "tokens_out": 4015
     },
     {
       "match_id": "m-003",
       "run": 0,
       "source": "model",
       "drafts": 2,
-      "removed_claims": 4,
-      "latency_s": 26.8,
-      "tokens_in": 16953,
-      "tokens_out": 4657
+      "removed_claims": 2,
+      "latency_s": 21.8,
+      "tokens_in": 16283,
+      "tokens_out": 4430
     },
     {
       "match_id": "m-003",
       "run": 1,
       "source": "model",
       "drafts": 2,
-      "removed_claims": 3,
-      "latency_s": 22.8,
-      "tokens_in": 16825,
-      "tokens_out": 4996
+      "removed_claims": 2,
+      "latency_s": 20.2,
+      "tokens_in": 16127,
+      "tokens_out": 4316
     },
     {
       "match_id": "m-003",
@@ -88,21 +88,22 @@
       "source": "model",
       "drafts": 2,
       "removed_claims": 2,
-      "latency_s": 24.2,
-      "tokens_in": 16656,
-      "tokens_out": 4555
+      "latency_s": 20.1,
+      "tokens_in": 16368,
+      "tokens_out": 4159
     }
   ],
   "deterministic": {
     "before": {
-      "claims": 217,
-      "claims_with_issues": 7,
+      "claims": 187,
+      "claims_with_issues": 12,
       "issues": {
-        "untraceable_number": 8
+        "untraceable_number": 9,
+        "other": 4
       }
     },
     "after": {
-      "claims": 95,
+      "claims": 89,
       "claims_with_issues": 0,
       "issues": {}
     }
@@ -111,24 +112,24 @@
     "before": {
       "status": "completed",
       "counts": {
-        "errored": 1,
-        "failed": 55,
-        "passed": 161,
-        "total": 217
+        "errored": 0,
+        "failed": 49,
+        "passed": 138,
+        "total": 187
       },
-      "mean_score": 4.15,
-      "report_url": "https://ai.azure.com/nextgen/r/X2Kvi_esQTqXkbQbxq7I0Q,second-act-rg,,second-act-resource,second-act/build/evaluations/eval_154e5c68fd4a4adb831999245b961792/run/evalrun_55673997d0524791a9b46afaeda4c0aa"
+      "mean_score": 4.04,
+      "report_url": "https://ai.azure.com/nextgen/r/X2Kvi_esQTqXkbQbxq7I0Q,second-act-rg,,second-act-resource,second-act/build/evaluations/eval_35c2a7494b9a4e878e2d0b23c2a0e6b2/run/evalrun_3069a1576a9244a88999bc341585d4f7"
     },
     "after": {
       "status": "completed",
       "counts": {
         "errored": 0,
         "failed": 16,
-        "passed": 79,
-        "total": 95
+        "passed": 73,
+        "total": 89
       },
-      "mean_score": 4.37,
-      "report_url": "https://ai.azure.com/nextgen/r/X2Kvi_esQTqXkbQbxq7I0Q,second-act-rg,,second-act-resource,second-act/build/evaluations/eval_01772c13c0c948f088ce124b8af03125/run/evalrun_856857d05c7549e7a55c0595009667f4"
+      "mean_score": 4.29,
+      "report_url": "https://ai.azure.com/nextgen/r/X2Kvi_esQTqXkbQbxq7I0Q,second-act-rg,,second-act-resource,second-act/build/evaluations/eval_3623717242864be1a8ce536e756e9d2a/run/evalrun_6efd07ee4b83469f83b144e25c534a45"
     }
   }
 }

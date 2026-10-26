@@ -96,16 +96,16 @@ All figures are measured on the synthetic matches with `gpt-5-mini` (reasoning e
 
 | | Claims | Untraceable numbers | Foundry groundedness pass rate (independent judge) | Mean score (1–5) |
 | --- | --- | --- | --- | --- |
-| Raw tactician drafts | 217 | 8 | 75% | 4.15 |
-| Verified briefings | 95 | **0** | **83%** | 4.37 |
+| Raw tactician drafts | 187 | 9 | 74% | 4.04 |
+| Verified briefings | 89 | **0** | **82%** | 4.29 |
 
-Nine online runs (3 per match) produced a model-written briefing every time, with no template fallbacks. The verifier repaired each one, removing 1–4 claims. The first version of the verifier scored only 71% with Foundry's judge. The judge's reasons drove three fixes: one-sided comparisons, causes and forecasts the values don't show, and misreadings of position. The full story, including what's still not caught, is in [docs/evaluation.md](docs/evaluation.md).
+Nine online runs (3 per match) produced a model-written briefing every time, with no template fallbacks. The verifier repaired most of them, removing up to 3 claims. The first version of the verifier scored only 71% with Foundry's judge. The judge's reasons drove three fixes: one-sided comparisons, causes and forecasts the values don't show, and misreadings of position. The full story, including what's still not caught, is in [docs/evaluation.md](docs/evaluation.md).
 
 **Latency and tokens**
 
 | | Measured |
 | --- | --- |
-| Half-time whistle → verified briefing (English analyst variant streamed) | 22–33 s, median 26 s, over 9 runs (target 30 s) |
+| Half-time whistle → verified briefing (English analyst variant streamed) | 20–34 s, median 22 s, over 9 runs (target 30 s) |
 | Whistle → all 12 briefing variants | about 34 s |
 | Model calls per full match, nothing cached | about 21 (about 35k input and 16k output tokens) |
 | Model calls per viewer replay on the live demo (briefing and recap precomputed) | about 7 (about 1.4k input and 0.5k output tokens) |
@@ -143,8 +143,8 @@ SECOND_ACT_OFFLINE=true uvicorn second_act.api.app:app --port 8000   # web app a
 
 - The data is synthetic. The generator has no corners, offsides or penalties. Its tracking is a shape model, so distances run low and sprint counts high compared with real tracking data.
 - One replica serves all sessions, because sessions live in memory: a replay must be served by the replica that started it.
-- The verifier usually removes 1–4 claims per briefing; implicit one-team comparisons ("created more chances" citing one side) can still slip through. See [docs/evaluation.md](docs/evaluation.md).
-- Two of nine evaluation runs took just over the 30-second half-time target (32–33 s). The stream shows "briefing in progress" meanwhile, and cached replays are instant.
+- The verifier usually removes a few claims (up to 3) per briefing; implicit one-team comparisons ("created more chances" citing one side) can still slip through. See [docs/evaluation.md](docs/evaluation.md).
+- One of nine evaluation runs took longer than the 30-second half-time target (34 s). The stream shows "briefing in progress" meanwhile, and cached replays are instant.
 - Rewrites into casual or Spanish are number-checked but not meaning-checked, so a rewrite can soften a claim. Prediction verdicts use catalogue sentences, which are correct by construction, for that reason.
 - All 12 briefing variants are ready about 34 s after the whistle. The English analyst version meets the 30-second target, and the other modes show "preparing" briefly. Cached replays are instant.
 

@@ -39,6 +39,12 @@ az containerapp update -n second-act -g second-act-rg --image secondactjio0jn.az
 curl -s https://second-act.bluecliff-fc92b3c6.swedencentral.azurecontainerapps.io/api/health
 ```
 
+For about a minute after an update, the old revision keeps running while traffic moves to the new one. A replay started in that window can land on the old revision, and its follow-up requests on the new one, which can't see the session. Wait until only the new revision is active before testing:
+
+```bash
+az containerapp revision list -n second-act -g second-act-rg --query "[].{name:name, active:properties.active, traffic:properties.trafficWeight}" -o table
+```
+
 Logs:
 
 ```bash
