@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import asyncio
 import contextlib
+import hashlib
 import json
 import os
 import time
@@ -26,7 +27,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import FileResponse, StreamingResponse
+from fastapi.responses import HTMLResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
@@ -103,6 +104,16 @@ def _pacer(session: Session):
             await asyncio.sleep(min(delay, 5.0))
 
     return pace
+
+
+def _fingerprinted_index(web_dir: Path) -> str:
+    """index.html with ``?v=<hash>`` appended to each /static asset it references."""
+    html = (web_dir / "index.html").read_text(encoding="utf-8")
+    for asset in sorted(web_dir.iterdir()):
+        if asset.suffix in (".css", ".js"):
+            digest = hashlib.sha256(asset.read_bytes()).hexdigest()[:10]
+            html = html.replace(f'"/static/{asset.name}"', f'"/static/{asset.name}?v={digest}"')
+    return html
 
 
 def _load_match(match_id: str):
@@ -282,9 +293,13 @@ def create_app() -> FastAPI:
     if WEB_DIR.exists():
         app.mount("/static", StaticFiles(directory=WEB_DIR), name="static")
 
+        page = _fingerprinted_index(WEB_DIR)
+
         @app.get("/")
-        async def index() -> FileResponse:
-            return FileResponse(WEB_DIR / "index.html")
+        async def index() -> HTMLResponse:
+            # The page is never cached; its asset links carry content hashes, so a new
+            # release always loads fresh CSS and JavaScript.
+            return HTMLResponse(page, headers={"Cache-Control": "no-cache"})
 
     return app
 

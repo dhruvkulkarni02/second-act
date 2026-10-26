@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 
 from fastapi.testclient import TestClient
 
@@ -42,3 +43,12 @@ def test_unknown_match_and_session() -> None:
     with TestClient(create_app()) as client:
         assert client.post("/api/sessions", json={"match_id": "m-999"}).status_code == 404
         assert client.get("/api/sessions/nope/briefing").status_code == 404
+
+
+def test_index_fingerprints_assets_and_is_not_cached() -> None:
+    with TestClient(create_app()) as client:
+        response = client.get("/")
+        assert response.status_code == 200
+        assert response.headers["cache-control"] == "no-cache"
+        assert re.search(r'/static/styles\.css\?v=[0-9a-f]{10}"', response.text)
+        assert re.search(r'/static/app\.js\?v=[0-9a-f]{10}"', response.text)
