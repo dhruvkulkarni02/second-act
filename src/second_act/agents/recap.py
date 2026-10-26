@@ -30,6 +30,7 @@ from second_act.agents.verifier import (
     check_numbers,
     check_point,
     normalize_evidence,
+    strip_inline_ids,
     team_names,
 )
 from second_act.agents.watcher import Evaluation, evaluate, explanation_phrase, unit_of
@@ -113,9 +114,11 @@ def check_recap(draft: RecapDraft, state: MatchState) -> list[Issue]:
 def normalize_recap(draft: RecapDraft) -> RecapDraft:
     """Strip decoration from cited IDs."""
     data = draft.model_copy(deep=True)
+    data.headline = strip_inline_ids(data.headline)
     data.headline_evidence = normalize_evidence(data.headline_evidence)
     for section in SECTIONS:
         for point in getattr(data, section):
+            point.text = strip_inline_ids(point.text)
             point.evidence = normalize_evidence(point.evidence)
     for review in data.predictions:
         review.evidence = normalize_evidence(review.evidence)

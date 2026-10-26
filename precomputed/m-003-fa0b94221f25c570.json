@@ -1,0 +1,222 @@
+{
+ "key": "m-003-fa0b94221f25c570",
+ "briefing": {
+  "headline": "Harbour lead 2-0 at the break with 77.7% of the final-third passing",
+  "headline_evidence": [
+   "sig-goals-HAR-p1",
+   "sig-goals-KES-p1",
+   "sig-field_tilt-HAR-p1"
+  ],
+  "teams": [
+   {
+    "team": "HAR",
+    "working": [
+     {
+      "text": "Harbour are controlling possession and territory (possession 57% and field tilt 77.7%).",
+      "evidence": [
+       "sig-possession-HAR-p1",
+       "sig-field_tilt-HAR-p1"
+      ]
+     },
+     {
+      "text": "Harbour are creating substantially more chances (xG 2.6) and have taken many more shots (14) with more on target (8).",
+      "evidence": [
+       "sig-xg-HAR-p1",
+       "sig-shots-HAR-p1",
+       "sig-shots_on_target-HAR-p1"
+      ]
+     }
+    ],
+    "not_working": [
+     {
+      "text": "Half of Harbour's final-third entries come through the centre (channel share centre 50%), concentrating their attack centrally.",
+      "evidence": [
+       "sig-channel_share-HAR-centre-p1"
+      ]
+     },
+     {
+      "text": "Their press intensity may be fragile relative to game flow (wmean PPDA 6.6 is higher than the first-half PPDA 4.6), suggesting variability in pressing intensity.",
+      "evidence": [
+       "sig-ppda-HAR-p1",
+       "sig-ppda_wmean-HAR-p1"
+      ]
+     }
+    ],
+    "predictions": [
+     {
+      "prediction_id": "p-HAR-1",
+      "team": "HAR",
+      "claim": "Harbour will shift more of their final-third entries to the right so right-channel entries increase by at least 40%.",
+      "metric": "channel_entries",
+      "subject_team": "HAR",
+      "scope": {
+       "channel": "right"
+      },
+      "comparison": "second_half_window_mean_vs_first_half_mean",
+      "direction": "increase",
+      "threshold_pct": 40.0,
+      "evaluate_after_minute": 65,
+      "status": "open",
+      "evidence": [
+       "sig-channel_share-HAR-centre-p1",
+       "sig-channel_share-HAR-right-p1",
+       "sig-channel_entries-HAR-right-p1"
+      ]
+     },
+     {
+      "prediction_id": "p-HAR-2",
+      "team": "HAR",
+      "claim": "Harbour's PPDA will rise by at least 20% as pressing intensity eases.",
+      "metric": "ppda",
+      "subject_team": "HAR",
+      "scope": {},
+      "comparison": "second_half_window_mean_vs_first_half_mean",
+      "direction": "increase",
+      "threshold_pct": 20.0,
+      "evaluate_after_minute": 65,
+      "status": "open",
+      "evidence": [
+       "sig-ppda-HAR-p1",
+       "sig-ppda_wmean-HAR-p1"
+      ]
+     },
+     {
+      "prediction_id": "p-HAR-3",
+      "team": "HAR",
+      "claim": "Harbour will try to reduce Kestrel's central overload, cutting Kestrel centre entries by at least 30%.",
+      "metric": "channel_entries",
+      "subject_team": "KES",
+      "scope": {
+       "channel": "centre"
+      },
+      "comparison": "second_half_window_mean_vs_first_half_mean",
+      "direction": "decrease",
+      "threshold_pct": 30.0,
+      "evaluate_after_minute": 65,
+      "status": "open",
+      "evidence": [
+       "sig-channel_share-KES-centre-p1",
+       "sig-channel_entries-KES-centre-p1"
+      ]
+     }
+    ]
+   },
+   {
+    "team": "KES",
+    "working": [
+     {
+      "text": "Kestrel still favour central entries when they attack (centre channel share 55.6%).",
+      "evidence": [
+       "sig-channel_share-KES-centre-p1"
+      ]
+     },
+     {
+      "text": "They retain a measurable share of possession (43%) and have made a reasonable number of progressive passes (72).",
+      "evidence": [
+       "sig-possession-KES-p1",
+       "sig-progressive_passes-KES-p1"
+      ]
+     }
+    ],
+    "not_working": [
+     {
+      "text": "Kestrel are being overrun in territory and high ball wins: field tilt 22.3% and zero high regains.",
+      "evidence": [
+       "sig-field_tilt-KES-p1",
+       "sig-high_regains-KES-p1"
+      ]
+     },
+     {
+      "text": "Their press is light (PPDA 11.5) and they win the ball much lower (turnover height 19.2 m).",
+      "evidence": [
+       "sig-ppda-KES-p1",
+       "sig-turnover_height-KES-p1"
+      ]
+     },
+     {
+      "text": "Kestrel have created fewer chances (xG 0.82) and registered fewer shots (6) with only one on target.",
+      "evidence": [
+       "sig-xg-KES-p1",
+       "sig-shots-KES-p1",
+       "sig-shots_on_target-KES-p1"
+      ]
+     }
+    ],
+    "predictions": [
+     {
+      "prediction_id": "p-KES-1",
+      "team": "KES",
+      "claim": "Kestrel will drop a midfielder to sit deeper so Harbour's high regains drop by at least 30%.",
+      "metric": "high_regains",
+      "subject_team": "HAR",
+      "scope": {},
+      "comparison": "second_half_window_mean_vs_first_half_mean",
+      "direction": "decrease",
+      "threshold_pct": 30.0,
+      "evaluate_after_minute": 65,
+      "status": "open",
+      "evidence": [
+       "sig-high_regains-HAR-p1",
+       "sig-turnover_height-KES-p1"
+      ]
+     },
+     {
+      "prediction_id": "p-KES-2",
+      "team": "KES",
+      "claim": "Kestrel will try to win more possession, increasing their possession by at least 10 percentage points.",
+      "metric": "possession",
+      "subject_team": "KES",
+      "scope": {},
+      "comparison": "second_half_window_mean_vs_first_half_mean",
+      "direction": "increase",
+      "threshold_pct": 10.0,
+      "evaluate_after_minute": 65,
+      "status": "open",
+      "evidence": [
+       "sig-possession-KES-p1",
+       "sig-possession-HAR-p1"
+      ]
+     },
+     {
+      "prediction_id": "p-KES-3",
+      "team": "KES",
+      "claim": "Kestrel will crowd the centre to cut Harbour's central entries by at least 30%.",
+      "metric": "channel_entries",
+      "subject_team": "HAR",
+      "scope": {
+       "channel": "centre"
+      },
+      "comparison": "second_half_window_mean_vs_first_half_mean",
+      "direction": "decrease",
+      "threshold_pct": 30.0,
+      "evaluate_after_minute": 65,
+      "status": "open",
+      "evidence": [
+       "sig-channel_share-HAR-centre-p1",
+       "sig-channel_entries-HAR-centre-p1"
+      ]
+     }
+    ]
+   }
+  ],
+  "source": "model",
+  "attempts": 2,
+  "fallback_reason": null,
+  "removed_claims": [
+   "HAR.working: They press intensely and win the ball high (PPDA 4.6 and turnover height 50.5 m). -- claim not supported by its evidence: PPDA 4.6 indicates intense pressing, but turnover_height 50.5 m is below 52.5 m (in their own half), so it does not support 'win the ball high'.",
+   "headline: Harbour Town 2 - 0 Kestrel Athletic; Harbour lead while dominating territory and high wins -- claim not supported by its evidence: Says 'dominating territory and high wins' \u2014 values show Harbour dominate territory (field_tilt 77.7%) but turnover_height 50.5 m is below 52.5 m (their own half), so it does not support 'high wins'. (replaced by the template headline)"
+  ]
+ },
+ "log": {
+  "drafts": 2,
+  "rejections": 3,
+  "issues_caught": 7,
+  "fallbacks": 0,
+  "claims_removed": 2,
+  "model_calls": 4,
+  "tokens_in": 16346,
+  "tokens_out": 4697,
+  "model_latency_s": 41.0,
+  "workflow_latency_s": 20.95
+ }
+}

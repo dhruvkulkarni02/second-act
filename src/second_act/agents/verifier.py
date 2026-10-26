@@ -225,18 +225,81 @@ def check_comparison(
     ]
 
 
+_PASSIVE_PRESSED = re.compile(
+    r"\b(?:being|are|were|is|was|get|got|getting)\s+(?:\w+\s+)?pressed\b", re.IGNORECASE
+)
+
+
+def check_ppda_reading(point: Point, signals: SignalSet, where: str) -> list[Issue]:
+    """PPDA measures a team's own pressing; reading it as how hard a team *is pressed* is
+    the most common misreading seen in drafts."""
+    cites_ppda = any(
+        (s := signals.get(sid)) is not None and s.metric.startswith("ppda")
+        for sid in point.evidence
+    )
+    if cites_ppda and _PASSIVE_PRESSED.search(point.text):
+        return [
+            Issue(
+                where, "PPDA measures how hard the named team presses, not how hard it is pressed"
+            )
+        ]
+    return []
+
+
+_LOSING = re.compile(
+    r"\b(?:los(?:e|es|ing|t)|giv(?:e|es|ing) (?:the ball )?away|"
+    r"conced(?:e|es|ing|ed))\b",
+    re.IGNORECASE,
+)
+
+
+def check_regains_reading(point: Point, signals: SignalSet, where: str) -> list[Issue]:
+    """``high_regains-T`` counts team T *winning* the ball high. A point filed under T that
+    cites T's own regains while describing T losing the ball has read it backwards."""
+    team = where.split(".", 1)[0]
+    if not re.fullmatch(r"[A-Z]{3}", team) or not _LOSING.search(point.text):
+        return []
+    own = [
+        sid
+        for sid in point.evidence
+        if (s := signals.get(sid)) is not None
+        and s.metric.startswith("high_regains")
+        and s.team == team
+    ]
+    opponent = [
+        sid
+        for sid in point.evidence
+        if (s := signals.get(sid)) is not None
+        and s.metric.startswith("high_regains")
+        and s.team not in (None, team)
+    ]
+    if own and not opponent:
+        return [
+            Issue(
+                where,
+                f"high_regains-{team} counts {team} winning the ball high; "
+                f"{team} losing it in their own third is the opponent's "
+                "high_regains",
+            )
+        ]
+    return []
+
+
 def check_point(
     point: Point,
     signals: SignalSet,
     where: str,
     team_names: dict[str, set[str]] | None = None,
 ) -> list[Issue]:
-    """Evidence exists, every number is traceable to it, and comparisons cite both teams."""
+    """Evidence exists, every number is traceable to it, comparisons cite both teams, and
+    PPDA is not read backwards."""
     values, issues = _cited(point.evidence, signals, where)
     return (
         issues
         + check_numbers(point.text, values, where)
         + check_comparison(point, signals, where, team_names)
+        + check_ppda_reading(point, signals, where)
+        + check_regains_reading(point, signals, where)
     )
 
 
@@ -405,12 +468,24 @@ def prune(draft: BriefingDraft, issues: Sequence[Issue]) -> tuple[BriefingDraft,
     return pruned, removed
 
 
+_INLINE_IDS = re.compile(r"\s*\((?:\s*sig-[A-Za-z0-9_-]+\s*,?)+\)|\bsig-[A-Za-z0-9_-]+\b")
+
+
+def strip_inline_ids(text: str) -> str:
+    """Remove signal IDs a model wrote into prose ("... 70.6% (sig-x-HAR-p1).")."""
+    cleaned = _INLINE_IDS.sub("", text)
+    return re.sub(r"\s+([.,;:])", r"\1", re.sub(r"\s{2,}", " ", cleaned)).strip()
+
+
 def normalize_draft(draft: BriefingDraft) -> BriefingDraft:
-    """Strip decoration from cited IDs so formatting slips are not grounding failures."""
+    """Fix formatting slips so they are not grounding failures: decorated evidence IDs, and
+    signal IDs written into the text."""
     data = draft.model_copy(deep=True)
+    data.headline = strip_inline_ids(data.headline)
     data.headline_evidence = normalize_evidence(data.headline_evidence)
     for read in data.teams:
         for point in [*read.working, *read.not_working]:
+            point.text = strip_inline_ids(point.text)
             point.evidence = normalize_evidence(point.evidence)
         for pred in read.predictions:
             pred.evidence = normalize_evidence(pred.evidence)
@@ -444,7 +519,9 @@ been checked; judge meaning. Mark a claim unsupported when it:
 - compares the two teams without citing values for both;
 - asserts a cause, an effect or a forecast the values do not show ("which led to the
   goal", "a clear avenue to exploit", "risks tiring", "producing chances");
-- contradicts itself.
+- contradicts itself;
+- sits in the wrong category: a "working" point must describe something going well for
+  the team it is filed under, a "not_working" point something going badly for it.
 Plain descriptions of what the values show, with fair everyday wording, are supported.
 Be concise."""
 

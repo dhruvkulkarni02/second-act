@@ -1,0 +1,211 @@
+{
+ "key": "m-001-932ca55798d769d0",
+ "briefing": {
+  "headline": "Harbour lead 1-0 at the break with 78.2% of the final-third passing",
+  "headline_evidence": [
+   "sig-goals-HAR-p1",
+   "sig-goals-KES-p1",
+   "sig-field_tilt-HAR-p1"
+  ],
+  "teams": [
+   {
+    "team": "HAR",
+    "working": [
+     {
+      "text": "Harbour hold 55.2% of possession and more control (control index 55.2).",
+      "evidence": [
+       "sig-possession-HAR-p1",
+       "sig-control_index-HAR-p1"
+      ]
+     },
+     {
+      "text": "They have completed 34 entries into the final third, with 70.6% of those down the left flank.",
+      "evidence": [
+       "sig-final_third_entries-HAR-p1",
+       "sig-channel_share-HAR-left-p1"
+      ]
+     },
+     {
+      "text": "Harbour press intensely and win the ball very high (PPDA 3.1 and turnover height 54.8 m), producing 19 high regains and 0.75 xG.",
+      "evidence": [
+       "sig-ppda-HAR-p1",
+       "sig-turnover_height-HAR-p1",
+       "sig-high_regains-HAR-p1",
+       "sig-xg-HAR-p1"
+      ]
+     }
+    ],
+    "not_working": [
+     {
+      "text": "Their pass completion is 74%, only marginally higher than Kestrel, despite heavy attacking bias.",
+      "evidence": [
+       "sig-pass_completion-HAR-p1",
+       "sig-pass_completion-KES-p1"
+      ]
+     }
+    ],
+    "predictions": [
+     {
+      "prediction_id": "p-HAR-1",
+      "team": "HAR",
+      "claim": "Harbour will try to reduce Kestrel's right-channel entries by at least 30%.",
+      "metric": "channel_entries",
+      "subject_team": "KES",
+      "scope": {
+       "channel": "right"
+      },
+      "comparison": "second_half_window_mean_vs_first_half_mean",
+      "direction": "decrease",
+      "threshold_pct": 30.0,
+      "evaluate_after_minute": 65,
+      "status": "open",
+      "evidence": [
+       "sig-channel_share-KES-right-p1",
+       "sig-channel_entries-KES-right-p1"
+      ]
+     },
+     {
+      "prediction_id": "p-HAR-2",
+      "team": "HAR",
+      "claim": "Harbour's pressing intensity will decline, increasing their PPDA by at least 20%.",
+      "metric": "ppda",
+      "subject_team": "HAR",
+      "scope": {},
+      "comparison": "second_half_window_mean_vs_first_half_mean",
+      "direction": "increase",
+      "threshold_pct": 20.0,
+      "evaluate_after_minute": 65,
+      "status": "open",
+      "evidence": [
+       "sig-ppda-HAR-p1"
+      ]
+     },
+     {
+      "prediction_id": "p-HAR-3",
+      "team": "HAR",
+      "claim": "Harbour will increase their final-third entries by at least 20%.",
+      "metric": "final_third_entries",
+      "subject_team": "HAR",
+      "scope": {},
+      "comparison": "second_half_window_mean_vs_first_half_mean",
+      "direction": "increase",
+      "threshold_pct": 20.0,
+      "evaluate_after_minute": 65,
+      "status": "open",
+      "evidence": [
+       "sig-final_third_entries-HAR-p1"
+      ]
+     }
+    ]
+   },
+   {
+    "team": "KES",
+    "working": [
+     {
+      "text": "Kestrel concentrate the majority of their entries down the right (58.3% of entries).",
+      "evidence": [
+       "sig-channel_share-KES-right-p1"
+      ]
+     },
+     {
+      "text": "They have kept their pass completion broadly similar to Harbour (71.9% vs 74%).",
+      "evidence": [
+       "sig-pass_completion-KES-p1",
+       "sig-pass_completion-HAR-p1"
+      ]
+     }
+    ],
+    "not_working": [
+     {
+      "text": "Kestrel's press has been light (PPDA 11.2) and they have only 3 high regains and a turnover height of 28.8 m.",
+      "evidence": [
+       "sig-ppda-KES-p1",
+       "sig-high_regains-KES-p1",
+       "sig-turnover_height-KES-p1"
+      ]
+     },
+     {
+      "text": "They are well behind on chance creation and expected goals (0.04 xG vs Harbour's 0.75).",
+      "evidence": [
+       "sig-xg-KES-p1",
+       "sig-xg-HAR-p1"
+      ]
+     }
+    ],
+    "predictions": [
+     {
+      "prediction_id": "p-KES-1",
+      "team": "KES",
+      "claim": "Kestrel will try to reduce Harbour's left-channel entries by at least 30%.",
+      "metric": "channel_entries",
+      "subject_team": "HAR",
+      "scope": {
+       "channel": "left"
+      },
+      "comparison": "second_half_window_mean_vs_first_half_mean",
+      "direction": "decrease",
+      "threshold_pct": 30.0,
+      "evaluate_after_minute": 65,
+      "status": "open",
+      "evidence": [
+       "sig-channel_share-HAR-left-p1",
+       "sig-channel_entries-HAR-left-p1"
+      ]
+     },
+     {
+      "prediction_id": "p-KES-2",
+      "team": "KES",
+      "claim": "Kestrel will drop a midfielder to reduce Harbour's high regains by at least 30%.",
+      "metric": "high_regains",
+      "subject_team": "HAR",
+      "scope": {},
+      "comparison": "second_half_window_mean_vs_first_half_mean",
+      "direction": "decrease",
+      "threshold_pct": 30.0,
+      "evaluate_after_minute": 65,
+      "status": "open",
+      "evidence": [
+       "sig-high_regains-HAR-p1"
+      ]
+     },
+     {
+      "prediction_id": "p-KES-3",
+      "team": "KES",
+      "claim": "Kestrel will increase their possession by at least 10%.",
+      "metric": "possession",
+      "subject_team": "KES",
+      "scope": {},
+      "comparison": "second_half_window_mean_vs_first_half_mean",
+      "direction": "increase",
+      "threshold_pct": 10.0,
+      "evaluate_after_minute": 65,
+      "status": "open",
+      "evidence": [
+       "sig-possession-KES-p1"
+      ]
+     }
+    ]
+   }
+  ],
+  "source": "model",
+  "attempts": 2,
+  "fallback_reason": null,
+  "removed_claims": [
+   "headline: Half-time: Harbour Town 1 - 0 Kestrel Athletic \u2014 Harbour have dominated possession, entries and high turnovers while Kestrel have concentrated their entries down the right. -- number 0 does not match any cited signal (cited: sig-possession-HAR-p1=55.2, sig-final_third_entries-HAR-p1=34, sig-turnover_height-HAR-p1=54.8, sig-channel_share-KES-right-p1=58.3, sig-channel_share-HAR-left-p1=70.6) (replaced by the template headline)",
+   "HAR.not_working: Harbour are concentrated down the left for entries (70.6%), which could be targeted by Kestrel. -- claim not supported by its evidence: Claim adds a forecast ('could be targeted by Kestrel') which is causal/speculative beyond the single channel_share value.",
+   "KES.working: Kestrel have generated 68 progressive passes and 224 passes despite being out of possession overall. -- claim not supported by its evidence: Claim mixes 'generated' progressive passes and '224 passes despite being out of possession overall' \u2014 evidence gives counts but nothing about being 'out of possession overall' (no opponent possession value), so the comparative phrase is unsupported."
+  ]
+ },
+ "log": {
+  "drafts": 2,
+  "rejections": 3,
+  "issues_caught": 6,
+  "fallbacks": 0,
+  "claims_removed": 3,
+  "model_calls": 3,
+  "tokens_in": 14503,
+  "tokens_out": 3652,
+  "model_latency_s": 39.31,
+  "workflow_latency_s": 23.24
+ }
+}

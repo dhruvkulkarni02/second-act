@@ -1,0 +1,222 @@
+{
+ "key": "m-002-bb5547f4a4c9a399",
+ "briefing": {
+  "headline": "Harbour lead 2-0 at the break against the run of territory",
+  "headline_evidence": [
+   "sig-goals-KES-p1",
+   "sig-goals-HAR-p1",
+   "sig-field_tilt-HAR-p1"
+  ],
+  "teams": [
+   {
+    "team": "KES",
+    "working": [
+     {
+      "text": "Kestrel are pressing intensely (lower PPDA) compared with Harbour.",
+      "evidence": [
+       "sig-ppda-KES-p1",
+       "sig-ppda-HAR-p1"
+      ]
+     },
+     {
+      "text": "Kestrel win the ball much higher up the pitch than Harbour (mean turnover location).",
+      "evidence": [
+       "sig-turnover_height-KES-p1",
+       "sig-turnover_height-HAR-p1"
+      ]
+     },
+     {
+      "text": "Kestrel carry more of the game into the final third than Harbour by count and per-window mean.",
+      "evidence": [
+       "sig-final_third_entries-KES-p1",
+       "sig-final_third_entries_wmean-KES-p1",
+       "sig-final_third_entries-HAR-p1",
+       "sig-final_third_entries_wmean-HAR-p1"
+      ]
+     }
+    ],
+    "not_working": [
+     {
+      "text": "Kestrel have conceded two goals despite similar overall possession and xG numbers.",
+      "evidence": [
+       "sig-possession-KES-p1",
+       "sig-possession-HAR-p1",
+       "sig-xg-KES-p1",
+       "sig-xg-HAR-p1",
+       "sig-goals-HAR-p1",
+       "sig-goals-KES-p1"
+      ]
+     }
+    ],
+    "predictions": [
+     {
+      "prediction_id": "p-KES-1",
+      "team": "KES",
+      "claim": "Kestrel will crowd Harbour's centre so Harbour's centre channel entries decrease by at least 30%.",
+      "metric": "channel_entries",
+      "subject_team": "HAR",
+      "scope": {
+       "channel": "centre"
+      },
+      "comparison": "second_half_window_mean_vs_first_half_mean",
+      "direction": "decrease",
+      "threshold_pct": 30.0,
+      "evaluate_after_minute": 65,
+      "status": "open",
+      "evidence": [
+       "sig-channel_share-HAR-centre-p1",
+       "sig-channel_entries-HAR-centre-p1"
+      ]
+     },
+     {
+      "prediction_id": "p-KES-2",
+      "team": "KES",
+      "claim": "Kestrel's PPDA will increase by at least 20% as their press is maintained into the second half.",
+      "metric": "ppda",
+      "subject_team": "KES",
+      "scope": {},
+      "comparison": "second_half_window_mean_vs_first_half_mean",
+      "direction": "increase",
+      "threshold_pct": 20.0,
+      "evaluate_after_minute": 65,
+      "status": "open",
+      "evidence": [
+       "sig-ppda-KES-p1"
+      ]
+     },
+     {
+      "prediction_id": "p-KES-3",
+      "team": "KES",
+      "claim": "Kestrel will increase their final-third entries by at least 20% as they chase the game.",
+      "metric": "final_third_entries",
+      "subject_team": "KES",
+      "scope": {},
+      "comparison": "second_half_window_mean_vs_first_half_mean",
+      "direction": "increase",
+      "threshold_pct": 20.0,
+      "evaluate_after_minute": 65,
+      "status": "open",
+      "evidence": [
+       "sig-final_third_entries-KES-p1"
+      ]
+     }
+    ]
+   },
+   {
+    "team": "HAR",
+    "working": [
+     {
+      "text": "Harbour have been effective through the centre of the final third, using it for the largest share of entries.",
+      "evidence": [
+       "sig-channel_share-HAR-centre-p1",
+       "sig-channel_entries-HAR-centre-p1"
+      ]
+     },
+     {
+      "text": "Harbour have taken two goals from 1.46 xG and four shots on target.",
+      "evidence": [
+       "sig-goals-HAR-p1",
+       "sig-xg-HAR-p1",
+       "sig-shots_on_target-HAR-p1"
+      ]
+     },
+     {
+      "text": "Harbour maintain similar pass completion and progressive passing to Kestrel.",
+      "evidence": [
+       "sig-pass_completion-HAR-p1",
+       "sig-pass_completion-KES-p1",
+       "sig-progressive_passes-HAR-p1",
+       "sig-progressive_passes-KES-p1"
+      ]
+     }
+    ],
+    "not_working": [
+     {
+      "text": "Harbour press far less intensely than Kestrel (higher PPDA).",
+      "evidence": [
+       "sig-ppda-HAR-p1",
+       "sig-ppda-KES-p1"
+      ]
+     },
+     {
+      "text": "Harbour win the ball much deeper than Kestrel (lower turnover height).",
+      "evidence": [
+       "sig-turnover_height-HAR-p1",
+       "sig-turnover_height-KES-p1"
+      ]
+     }
+    ],
+    "predictions": [
+     {
+      "prediction_id": "p-HAR-1",
+      "team": "HAR",
+      "claim": "Harbour will increase their final-third entries by at least 20%.",
+      "metric": "final_third_entries",
+      "subject_team": "HAR",
+      "scope": {},
+      "comparison": "second_half_window_mean_vs_first_half_mean",
+      "direction": "increase",
+      "threshold_pct": 20.0,
+      "evaluate_after_minute": 65,
+      "status": "open",
+      "evidence": [
+       "sig-final_third_entries-HAR-p1"
+      ]
+     },
+     {
+      "prediction_id": "p-HAR-2",
+      "team": "HAR",
+      "claim": "Harbour will increase their progressive passes by at least 15% to move the ball more directly.",
+      "metric": "progressive_passes",
+      "subject_team": "HAR",
+      "scope": {},
+      "comparison": "second_half_window_mean_vs_first_half_mean",
+      "direction": "increase",
+      "threshold_pct": 15.0,
+      "evaluate_after_minute": 65,
+      "status": "open",
+      "evidence": [
+       "sig-progressive_passes-HAR-p1"
+      ]
+     },
+     {
+      "prediction_id": "p-HAR-3",
+      "team": "HAR",
+      "claim": "Harbour will decrease Kestrel's high regains by at least 10% by adjusting to Kestrel's high press.",
+      "metric": "high_regains",
+      "subject_team": "KES",
+      "scope": {},
+      "comparison": "second_half_window_mean_vs_first_half_mean",
+      "direction": "decrease",
+      "threshold_pct": 10.0,
+      "evaluate_after_minute": 65,
+      "status": "open",
+      "evidence": [
+       "sig-high_regains-KES-p1",
+       "sig-turnover_height-KES-p1"
+      ]
+     }
+    ]
+   }
+  ],
+  "source": "model",
+  "attempts": 2,
+  "fallback_reason": null,
+  "removed_claims": [
+   "KES.not_working: Harbour are routing nearly half of their final\u2011third entries through the centre. -- claim not supported by its evidence: Claim is filed under Kestrel.not_working but describes Harbour routing entries through the centre; it belongs to Harbour and also compares only Harbour's share without saying why this is 'not working' for Kestrel.",
+   "headline: HALF-TIME: KES 0 - 2 HAR; Harbour have two goals and more central final-third entries while Kestrel press harder and win the ball higher. -- claim not supported by its evidence: Claim mixes three assertions: goals (supported) and central final\u2011third entries (needs both teams' values to compare) and that Kestrel 'press harder and win the ball higher'\u2014pressing and turnover height are cited but the centre-entry comparison is a two\u2011team comparison without Harbour's value; also headline compares central entries without Harbour's entries value (only Harbour centre share given). (replaced by the template headline)"
+  ]
+ },
+ "log": {
+  "drafts": 2,
+  "rejections": 2,
+  "issues_caught": 4,
+  "fallbacks": 0,
+  "claims_removed": 2,
+  "model_calls": 4,
+  "tokens_in": 16239,
+  "tokens_out": 4715,
+  "model_latency_s": 40.29,
+  "workflow_latency_s": 21.41
+ }
+}

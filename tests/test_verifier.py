@@ -221,3 +221,32 @@ def test_comparisons_must_cite_both_teams(state: MatchState) -> None:
         evidence=["sig-channel_entries-HAR-left-p1", "sig-channel_entries-HAR-right-p1"],
     )
     assert check_point(within_team, state.signals, "p", names) == []
+
+
+def test_ppda_read_as_being_pressed_is_rejected(state: MatchState) -> None:
+    wrong = Point(text="Kestrel are being pressed less (PPDA 11.2).", evidence=["sig-ppda-KES-p1"])
+    [issue] = check_point(wrong, state.signals, "p")
+    assert "not how hard it is pressed" in issue.message
+    right = Point(text="Kestrel press lightly (PPDA 11.2).", evidence=["sig-ppda-KES-p1"])
+    assert check_point(right, state.signals, "p") == []
+
+
+def test_signal_ids_in_prose_are_stripped() -> None:
+    from second_act.agents.verifier import strip_inline_ids
+
+    text = "Harbour attack down the left: 70.6% of entries (sig-channel_share-HAR-left-p1)."
+    assert strip_inline_ids(text) == "Harbour attack down the left: 70.6% of entries."
+    assert strip_inline_ids("xG 0.75 vs 0.04 (sig-xg-HAR-p1, sig-xg-KES-p1)") == "xG 0.75 vs 0.04"
+
+
+def test_own_regains_read_as_losing_the_ball_is_rejected(state: MatchState) -> None:
+    wrong = Point(
+        text="Kestrel lose the ball high only 3 times.", evidence=["sig-high_regains-KES-p1"]
+    )
+    [issue] = check_point(wrong, state.signals, "KES.not_working[0]")
+    assert "counts KES winning the ball high" in issue.message
+    right = Point(
+        text="Kestrel keep losing the ball in their own third: 19 times.",
+        evidence=["sig-high_regains-HAR-p1"],
+    )
+    assert check_point(right, state.signals, "KES.not_working[0]") == []

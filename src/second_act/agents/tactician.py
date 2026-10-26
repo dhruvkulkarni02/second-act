@@ -102,7 +102,9 @@ Hard rules (a verifier rejects drafts that break them):
 5. Team-frame conventions: every team attacks toward x = 105; "left" is the attacking
    team's left. A team attacking down its left meets the opponent's right side.
 
-6. working and not_working points describe what the signals show. Do not add causes,
+6. "working" lists what is going well for that team and "not_working" what is going
+   badly for it (a team being pinned back is not "working" for that team).
+   working and not_working points describe what the signals show. Do not add causes,
    effects or forecasts the values cannot show ("which led to the goal", "a clear avenue
    to exploit", "risks tiring"). Comparing the two teams? Cite the signal for each team.
 

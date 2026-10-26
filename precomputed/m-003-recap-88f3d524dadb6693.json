@@ -1,0 +1,136 @@
+{
+ "key": "m-003-recap-88f3d524dadb6693",
+ "briefing": {
+  "headline": "Harbour and Kestrel draw 2-2",
+  "headline_evidence": [
+   "sig-goals-HAR-p1",
+   "sig-goals-HAR-p2",
+   "sig-goals-KES-p1",
+   "sig-goals-KES-p2"
+  ],
+  "first_half": [
+   {
+    "text": "Kestrel were compact centrally but had less possession and fewer final-third entries in the first half.",
+    "evidence": [
+     "sig-possession_wmean-KES-p1",
+     "sig-final_third_entries_wmean-KES-p1",
+     "sig-channel_share-KES-centre-p1"
+    ]
+   }
+  ],
+  "changes": [
+   {
+    "text": "Kestrel pushed more through the centre and increased centre-channel entries, while Harbour pulled their attacking focus away from the centre.",
+    "evidence": [
+     "sig-channel_entries_wmean-KES-centre-p1",
+     "sig-channel_entries_wmean-KES-centre-p2",
+     "sig-channel_entries_wmean-HAR-centre-p1",
+     "sig-channel_entries_wmean-HAR-centre-p2",
+     "sig-channel_share-HAR-centre-p1",
+     "sig-channel_share-HAR-centre-p2"
+    ]
+   },
+   {
+    "text": "Harbour's pressing and high regain rate dropped notably after the break, with lower turnover height and fewer high regains.",
+    "evidence": [
+     "sig-ppda_wmean-HAR-p1",
+     "sig-ppda_wmean-HAR-p2",
+     "sig-high_regains_wmean-HAR-p1",
+     "sig-high_regains_wmean-HAR-p2",
+     "sig-turnover_height-HAR-p2"
+    ]
+   }
+  ],
+  "predictions": [
+   {
+    "prediction_id": "p-HAR-1",
+    "status": "contradicted",
+    "text": "Harbour did not shift right; right-channel entries fell rather than rising.",
+    "evidence": [
+     "sig-channel_entries_wmean-HAR-right-p1",
+     "sig-channel_entries_wmean-HAR-right-p2"
+    ]
+   },
+   {
+    "prediction_id": "p-HAR-2",
+    "status": "contradicted",
+    "text": "Harbour's PPDA rose only marginally (6%), well short of the predicted 20% increase.",
+    "evidence": [
+     "sig-ppda_wmean-HAR-p1",
+     "sig-ppda_wmean-HAR-p2"
+    ]
+   },
+   {
+    "prediction_id": "p-HAR-3",
+    "status": "contradicted",
+    "text": "Kestrel's centre entries increased rather than being cut, so Harbour failed to reduce the central overload.",
+    "evidence": [
+     "sig-channel_entries_wmean-KES-centre-p1",
+     "sig-channel_entries_wmean-KES-centre-p2"
+    ]
+   },
+   {
+    "prediction_id": "p-KES-1",
+    "status": "confirmed",
+    "text": "Harbour's high regains fell by 50% after the break, consistent with Kestrel sitting deeper.",
+    "evidence": [
+     "sig-high_regains_wmean-HAR-p1",
+     "sig-high_regains_wmean-HAR-p2"
+    ]
+   },
+   {
+    "prediction_id": "p-KES-2",
+    "status": "confirmed",
+    "text": "Kestrel increased their possession by 12 percentage points after the break, achieving the predicted rise.",
+    "evidence": [
+     "sig-possession_wmean-KES-p1",
+     "sig-possession_wmean-KES-p2"
+    ]
+   },
+   {
+    "prediction_id": "p-KES-3",
+    "status": "confirmed",
+    "text": "Harbour's centre entries fell by 40% after the break as Kestrel crowded the middle.",
+    "evidence": [
+     "sig-channel_entries_wmean-HAR-centre-p1",
+     "sig-channel_entries_wmean-HAR-centre-p2"
+    ]
+   }
+  ],
+  "result": [
+   {
+    "text": "Harbour's shot volume and xG dropped in the second half as their final-third entries and high regains declined, reducing their control of the contest.",
+    "evidence": [
+     "sig-shots-HAR-p1",
+     "sig-shots-HAR-p2",
+     "sig-xg-HAR-p1",
+     "sig-xg-HAR-p2",
+     "sig-final_third_entries-HAR-p2"
+    ]
+   }
+  ],
+  "source": "model",
+  "attempts": 2,
+  "fallback_reason": null,
+  "removed_claims": [
+   "first_half: Harbour dominated the final third and created the clearer chance volume to lead 2-0 at the break.",
+   "first_half: They pressed high and won the ball frequently in advanced areas, producing many high regains and very high turnover height.",
+   "changes: Kestrel shifted the territorial balance after half-time, increasing their overall and final-third possession while Harbour's possession fell.",
+   "result: Kestrel converted their second-half territorial advantage into chances and goals, overturning the momentum to salvage a 2-2 draw.",
+   "result: The tactical flip was clear: Kestrel pushed through the centre and secured more possession while Harbour withdrew from advanced pressing, and that shift produced the comeback.",
+   "headline: Kestrel overturn 2-0 halftime deficit to draw 2-2 as the momentum and territorial control flipped after the break (replaced by the template headline)"
+  ]
+ },
+ "log": {
+  "drafts": 4,
+  "rejections": 7,
+  "issues_caught": 22,
+  "fallbacks": 0,
+  "claims_removed": 8,
+  "model_calls": 17,
+  "tokens_in": 29568,
+  "tokens_out": 11822,
+  "model_latency_s": 118.26,
+  "workflow_latency_s": 46.09
+ }
+}
