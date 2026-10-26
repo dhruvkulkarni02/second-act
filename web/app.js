@@ -200,7 +200,8 @@
     lt.dataset.kind = cue.kind;
     lt.dataset.status = cue.status || "";
     const team = cue.kind === "prediction_check" ? null : cueTeam(cue);
-    lt.querySelector(".lt-body").style.setProperty("--team", team ? teamColour(team) : "var(--accent)");
+    lt.style.setProperty("--team", team ? teamColour(team) : "var(--accent)");
+    lt.dataset.team = team ? "yes" : "";
     $("lt-kind").textContent = cue.kind === "prediction_check" ? t(cue.status || "prediction_check") : t(cue.kind);
     $("lt-headline").textContent = cue.headline;
     $("lt-text").textContent = cue.body;
@@ -326,7 +327,7 @@
     if (!info || !info.source) return "";
     const templateLabel = info.offline && !info.fallback_reason ? t("source_offline") : t("source_template");
     const parts = [info.source === "model" ? t("source_model") : templateLabel];
-    if (info.attempts) parts.push(`${info.attempts} ${t("attempts")}`);
+    if (info.attempts) parts.push(`${info.attempts} ${t(info.attempts === 1 ? "attempt" : "attempts")}`);
     if (info.removed_claims && info.removed_claims.length) parts.push(`${info.removed_claims.length} ${t("removed")}`);
     return parts.join(" · ");
   }
