@@ -18,7 +18,7 @@ from pydantic import BaseModel
 from second_act.schema.briefing import Briefing
 from second_act.state.match_state import MatchState
 
-PROMPT_VERSION = "v5"
+PROMPT_VERSION = "v6"
 
 
 def briefing_key(state: MatchState, model: str, effort: str | None, kind: str = "halftime") -> str:

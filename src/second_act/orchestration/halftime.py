@@ -59,7 +59,29 @@ class HalftimeTask:
         return claims_for_support_check(draft, self.state.signals)
 
     def prune(self, draft: BriefingDraft, issues: list[Issue]):
-        return prune(draft, issues)
+        """Drop failing claims; a failing headline is replaced by the template headline,
+        which is grounded by construction."""
+        head = [i for i in issues if i.where == "headline"]
+        rest = [i for i in issues if i.where != "headline"]
+        result = prune(draft, rest) if rest else (draft.model_copy(deep=True), [])
+        if result is None:
+            return None
+        pruned, removed = result
+        if head:
+            template = self.template()
+            removed = [
+                *removed,
+                f"headline: {draft.headline} -- "
+                + "; ".join(i.message for i in head)
+                + " (replaced by the template headline)",
+            ]
+            pruned = pruned.model_copy(
+                update={
+                    "headline": template.headline,
+                    "headline_evidence": template.headline_evidence,
+                }
+            )
+        return pruned, removed
 
     def template(self) -> BriefingDraft:
         return _template_briefing(self.state.signals, self.state.meta)

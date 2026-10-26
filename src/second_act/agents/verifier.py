@@ -187,10 +187,62 @@ def _cited(evidence: Sequence[str], signals: SignalSet, where: str) -> tuple[dic
     return values, issues
 
 
-def check_point(point: Point, signals: SignalSet, where: str) -> list[Issue]:
-    """Evidence exists and every number in the text is traceable to it."""
+_COMPARATIVE = re.compile(
+    r"\b(than|compared (?:with|to)|relative to|versus|vs\.?|outshot|outscored|outpassed)\b",
+    re.IGNORECASE,
+)
+
+
+def check_comparison(
+    point: Point,
+    signals: SignalSet,
+    where: str,
+    team_names: dict[str, set[str]] | None = None,
+) -> list[Issue]:
+    """A comparison that names a team must cite that team's signals.
+
+    ``team_names`` maps team codes to the names a claim may use for them. Comparisons
+    within one team ("24 entries on the left versus 4 on the right") are fine.
+    """
+    if not team_names or not _COMPARATIVE.search(point.text):
+        return []
+    cited = {s.team for sid in point.evidence if (s := signals.get(sid)) is not None and s.team}
+    text = point.text.lower()
+    named = {
+        code
+        for code, names in team_names.items()
+        if any(re.search(rf"\b{re.escape(n.lower())}\b", text) for n in names)
+    }
+    missing = sorted(named - cited)
+    if not cited or not missing:
+        return []
+    return [
+        Issue(
+            where,
+            f"the claim compares against {', '.join(missing)} but cites no "
+            f"{', '.join(missing)} signal; cite the matching signal for that team",
+        )
+    ]
+
+
+def check_point(
+    point: Point,
+    signals: SignalSet,
+    where: str,
+    team_names: dict[str, set[str]] | None = None,
+) -> list[Issue]:
+    """Evidence exists, every number is traceable to it, and comparisons cite both teams."""
     values, issues = _cited(point.evidence, signals, where)
-    return issues + check_numbers(point.text, values, where)
+    return (
+        issues
+        + check_numbers(point.text, values, where)
+        + check_comparison(point, signals, where, team_names)
+    )
+
+
+def team_names(meta: MatchMetadata) -> dict[str, set[str]]:
+    """The names a claim may use for each team (code, full name, short name)."""
+    return {t.code: {t.code, t.name, t.short_name} for t in (meta.home, meta.away)}
 
 
 def baseline_problem(
@@ -281,6 +333,7 @@ def check_briefing(
 ) -> VerificationReport:
     """Run every deterministic check on a half-time briefing draft."""
     issues: list[Issue] = []
+    names = team_names(meta)
     codes = [t.team for t in draft.teams]
     if sorted(codes) != sorted([meta.home.code, meta.away.code]):
         issues.append(
@@ -303,7 +356,7 @@ def check_briefing(
             issues.append(Issue(read.team, f"needs {lo}-{hi} predictions"))
         for kind in ("working", "not_working"):
             for i, point in enumerate(getattr(read, kind)):
-                issues += check_point(point, signals, f"{read.team}.{kind}[{i}]")
+                issues += check_point(point, signals, f"{read.team}.{kind}[{i}]", names)
         for i, pred in enumerate(read.predictions):
             where = f"{read.team}.predictions[{i}]"
             if pred.prediction_id in seen_ids:
@@ -381,13 +434,18 @@ class SupportChecks(BaseModel):
     checks: list[ClaimCheck]
 
 
-SUPPORT_INSTRUCTIONS = """You audit football analysis before it goes on air.
-For each claim you get the exact values of the signals it cites. Decide whether the
-claim's interpretation follows from those values. Numbers have already been checked;
-judge direction and meaning (for example: a lower PPDA means a more intense press; a
-higher turnover_height means winning the ball further up the pitch). Mark a claim
-unsupported only if its evidence clearly does not back it or contradicts it. Loose or
-ambiguous wording is not a reason to reject; a misstated direction or meaning is.
+SUPPORT_INSTRUCTIONS = """You audit football analysis before it goes on air. For each claim you
+get the exact values of the signals it cites, with what each metric means. A claim is
+supported only if everything it asserts follows from those values. Numbers have already
+been checked; judge meaning. Mark a claim unsupported when it:
+- misreads a direction or a team (a lower PPDA means a MORE intense press; a higher
+  turnover_height means winning the ball further up the pitch; a turnover_height below
+  52.5 m is in the team's own half; each signal describes the team named in its ID);
+- compares the two teams without citing values for both;
+- asserts a cause, an effect or a forecast the values do not show ("which led to the
+  goal", "a clear avenue to exploit", "risks tiring", "producing chances");
+- contradicts itself.
+Plain descriptions of what the values show, with fair everyday wording, are supported.
 Be concise."""
 
 

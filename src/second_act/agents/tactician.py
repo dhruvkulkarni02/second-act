@@ -35,7 +35,8 @@ METRIC_NOTES = {
     "pass_completion": "pct of passes completed",
     "field_tilt": "share of final-third passes by both teams (pct)",
     "ppda": "opponent passes per defensive action in the press zone; LOWER = more intense press",
-    "turnover_height": "mean x (m from own goal) where the team wins the ball; higher = higher up",
+    "turnover_height": "mean x (m from own goal) where the team wins the ball; higher = "
+    "higher up; below 52.5 m is in the team's own half",
     "high_regains": "ball wins in the final third (i.e. the opponent losing it in its own third)",
     "channel_entries": "completed passes/carries into the final third via that channel",
     "final_third_entries": "all final-third entries",
@@ -85,6 +86,8 @@ Hard rules (a verifier rejects drafts that break them):
    any other number: no minutes of the match, no counts you worked out yourself.
    Round as the value is given or to a whole number. Prefer words ("twice as many").
 3. For each team: 1-3 points in "working", 1-3 in "not_working", and 2-3 predictions.
+   The headline states the score and one fact, citing every signal it relies on (for
+   both teams if it compares them); no interpretation beyond that.
 4. Predictions are what THAT team's manager will change at half-time, written as a
    measurable test the system will check in the second half:
    - metric: one of {metrics}
@@ -98,6 +101,10 @@ Hard rules (a verifier rejects drafts that break them):
    or cited values.
 5. Team-frame conventions: every team attacks toward x = 105; "left" is the attacking
    team's left. A team attacking down its left meets the opponent's right side.
+
+6. working and not_working points describe what the signals show. Do not add causes,
+   effects or forecasts the values cannot show ("which led to the goal", "a clear avenue
+   to exploit", "risks tiring"). Comparing the two teams? Cite the signal for each team.
 
 How to choose predictions: each manager reacts to what hurt their team and what the
 opponent did best in the first half. Start from the "Key first-half contrasts" and the
@@ -525,7 +532,8 @@ def template_phrases(signals: SignalSet, meta: MatchMetadata) -> TemplateBriefin
         if tilt >= 50:
             headline, evidence = Phrase("h_lead", params), [*goals_ev, c.sid("field_tilt", lead)]
         else:
-            headline, evidence = Phrase("h_lead_against", params), goals_ev
+            headline = Phrase("h_lead_against", params)
+            evidence = [*goals_ev, c.sid("field_tilt", lead)]
     else:
         better = home if c.v("xg", home) >= c.v("xg", away) else away
         worse = meta.opponent(better)

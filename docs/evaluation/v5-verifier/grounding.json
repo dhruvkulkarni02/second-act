@@ -1,0 +1,132 @@
+{
+  "model": "gpt-5-mini",
+  "reasoning_effort": "minimal",
+  "runs": [
+    {
+      "match_id": "m-001",
+      "run": 0,
+      "source": "model",
+      "drafts": 2,
+      "removed_claims": 0,
+      "latency_s": 28.5,
+      "tokens_in": 16111,
+      "tokens_out": 4728
+    },
+    {
+      "match_id": "m-001",
+      "run": 1,
+      "source": "model",
+      "drafts": 2,
+      "removed_claims": 0,
+      "latency_s": 25.9,
+      "tokens_in": 15365,
+      "tokens_out": 4186
+    },
+    {
+      "match_id": "m-001",
+      "run": 2,
+      "source": "model",
+      "drafts": 2,
+      "removed_claims": 0,
+      "latency_s": 27.7,
+      "tokens_in": 15892,
+      "tokens_out": 4392
+    },
+    {
+      "match_id": "m-002",
+      "run": 0,
+      "source": "model",
+      "drafts": 2,
+      "removed_claims": 2,
+      "latency_s": 19.2,
+      "tokens_in": 15424,
+      "tokens_out": 3417
+    },
+    {
+      "match_id": "m-002",
+      "run": 1,
+      "source": "model",
+      "drafts": 2,
+      "removed_claims": 0,
+      "latency_s": 22.4,
+      "tokens_in": 15823,
+      "tokens_out": 4344
+    },
+    {
+      "match_id": "m-002",
+      "run": 2,
+      "source": "model",
+      "drafts": 2,
+      "removed_claims": 0,
+      "latency_s": 18.4,
+      "tokens_in": 15468,
+      "tokens_out": 3943
+    },
+    {
+      "match_id": "m-003",
+      "run": 0,
+      "source": "model",
+      "drafts": 2,
+      "removed_claims": 0,
+      "latency_s": 20.9,
+      "tokens_in": 15574,
+      "tokens_out": 4009
+    },
+    {
+      "match_id": "m-003",
+      "run": 1,
+      "source": "model",
+      "drafts": 2,
+      "removed_claims": 0,
+      "latency_s": 20.2,
+      "tokens_in": 15960,
+      "tokens_out": 4281
+    },
+    {
+      "match_id": "m-003",
+      "run": 2,
+      "source": "model",
+      "drafts": 2,
+      "removed_claims": 0,
+      "latency_s": 22.1,
+      "tokens_in": 15700,
+      "tokens_out": 4377
+    }
+  ],
+  "deterministic": {
+    "before": {
+      "claims": 177,
+      "claims_with_issues": 0,
+      "issues": {}
+    },
+    "after": {
+      "claims": 85,
+      "claims_with_issues": 0,
+      "issues": {}
+    }
+  },
+  "foundry_groundedness": {
+    "before": {
+      "status": "completed",
+      "counts": {
+        "errored": 0,
+        "failed": 60,
+        "passed": 117,
+        "total": 177
+      },
+      "mean_score": 3.79,
+      "report_url": "https://ai.azure.com/nextgen/r/X2Kvi_esQTqXkbQbxq7I0Q,second-act-rg,,second-act-resource,second-act/build/evaluations/eval_d291aa99869244198493dabbe7d7dbab/run/evalrun_a22e11df3eb347299344e7b2e6be677a"
+    },
+    "after": {
+      "status": "completed",
+      "counts": {
+        "errored": 0,
+        "failed": 30,
+        "passed": 55,
+        "total": 85
+      },
+      "mean_score": 3.8,
+      "report_url": "https://ai.azure.com/nextgen/r/X2Kvi_esQTqXkbQbxq7I0Q,second-act-rg,,second-act-resource,second-act/build/evaluations/eval_dba994b10c4241a387941e2c7e8e7dbe/run/evalrun_ed4b6e0077ae4a15ab9f27131d776bbe"
+    }
+  }
+}

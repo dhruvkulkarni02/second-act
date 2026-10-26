@@ -30,6 +30,7 @@ from second_act.agents.verifier import (
     check_numbers,
     check_point,
     normalize_evidence,
+    team_names,
 )
 from second_act.agents.watcher import Evaluation, evaluate, explanation_phrase, unit_of
 from second_act.analytics.signals import WMEAN_SUFFIX, SignalSet, make_id
@@ -73,7 +74,7 @@ def check_recap(draft: RecapDraft, state: MatchState) -> list[Issue]:
         if not 1 <= len(points) <= MAX_POINTS:
             issues.append(Issue(section, f"needs 1-{MAX_POINTS} points"))
         for i, point in enumerate(points):
-            issues += check_point(point, signals, f"{section}[{i}]")
+            issues += check_point(point, signals, f"{section}[{i}]", team_names(state.meta))
     expected = {p.prediction_id: p.status for p in state.predictions}
     seen: set[str] = set()
     for i, review in enumerate(draft.predictions):
@@ -129,6 +130,8 @@ def prune_recap(
 ) -> tuple[RecapDraft, list[str]] | None:
     """Remove failing points; replace a failing prediction review with the watcher's own
     verified explanation. Headline and structural problems cannot be repaired."""
+    head = [i for i in issues if i.where == "headline"]
+    issues = [i for i in issues if i.where != "headline"]
     targets: dict[str, set[int]] = {}
     for issue in issues:
         match = _LOCATION.match(issue.where)
@@ -157,6 +160,10 @@ def prune_recap(
         out.predictions[i] = PredictionReview(
             prediction_id=pid, status=final[pid], text=text, evidence=evidence
         )
+    if head:
+        template = template_recap(state)
+        removed.append(f"headline: {draft.headline} (replaced by the template headline)")
+        out.headline, out.headline_evidence = template.headline, template.headline_evidence
     return out, removed
 
 

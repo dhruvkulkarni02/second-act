@@ -49,7 +49,10 @@ class ScriptedDrafter:
             # The headline cannot be pruned, so a bad headline forces a retry; a bad point
             # can be removed instead.
             if self.where == "headline":
-                draft.headline += ", hitting the woodwork 4 times"
+                # Unrepairable: every Harbour point invents a number, so pruning would
+                # leave the section empty and the draft must be redrafted.
+                for point in draft.teams[0].working:
+                    point.text += " They hit the woodwork 4 times."
             else:
                 draft.teams[0].working[0].text += " They hit the woodwork 4 times."
         return DraftResult(
@@ -71,8 +74,10 @@ class RejectPoint:
 
 
 class RejectAll:
+    """Model check that rejects every claim, so nothing can be repaired."""
+
     async def check(self, claims):
-        return [Issue("headline", "claim not supported by its evidence: test")], {
+        return [Issue(c["ref"], "claim not supported by its evidence: test") for c in claims], {
             "latency_s": 0.0,
             "usage": {},
         }
@@ -233,3 +238,24 @@ def test_model_prompt_builds_offline(state: MatchState) -> None:
     assert "Candidate adjustments flagged by the analyst" in prompt
     assert "metric=channel_entries, subject_team=HAR, channel=left, decrease >= 30%" in prompt
     assert "sig-ppda-KES-p1 = 11.2 ratio  (how hard Kestrel press; lower = harder)" in prompt
+
+
+def test_unsupported_headline_is_replaced_by_the_template_headline(state: MatchState) -> None:
+    class RejectHeadline:
+        async def check(self, claims):
+            return [Issue("headline", "claim not supported by its evidence: test")], {
+                "latency_s": 0.0,
+                "usage": {},
+            }
+
+    template = template_briefing(state.signals, state.meta)
+    log = AgentLog(write=False)
+    briefing = run(
+        state,
+        offline=False,
+        log=log,
+        drafter=ScriptedDrafter(bad=set()),
+        supporter=RejectHeadline(),
+    )
+    assert briefing.source == "model" and briefing.headline == template.headline
+    assert briefing.removed_claims[-1].endswith("(replaced by the template headline)")

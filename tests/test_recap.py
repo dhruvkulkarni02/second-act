@@ -42,4 +42,7 @@ def test_recap_rejects_invented_number_and_repairs_it(finished) -> None:
     repaired, removed = prune_recap(draft, issues, state)
     assert check_recap(repaired, state) == []
     assert "replaced by the watcher's note" in removed[-1]
-    assert prune_recap(draft, [Issue("headline", "x")], state) is None
+    fixed, notes = prune_recap(draft, [Issue("headline", "x")], state)
+    assert fixed.headline == template_recap(state).headline
+    assert notes[-1].endswith("(replaced by the template headline)")
+    assert prune_recap(draft, [Issue("teams", "x")], state) is None

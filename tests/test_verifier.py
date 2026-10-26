@@ -202,3 +202,22 @@ def test_kept_quiet_needs_a_clean_sheet() -> None:
 
     assert "w_quiet" in keys(0)
     assert "w_quiet" not in keys(1)
+
+
+def test_comparisons_must_cite_both_teams(state: MatchState) -> None:
+    from second_act.agents.verifier import team_names
+
+    names = team_names(state.meta)
+    one_sided = Point(text="Harbour press far harder than Kestrel.", evidence=["sig-ppda-HAR-p1"])
+    [issue] = check_point(one_sided, state.signals, "p", names)
+    assert "compares against KES but cites no KES signal" in issue.message
+    both = Point(
+        text="Harbour press far harder than Kestrel.",
+        evidence=["sig-ppda-HAR-p1", "sig-ppda-KES-p1"],
+    )
+    assert check_point(both, state.signals, "p", names) == []
+    within_team = Point(
+        text="Harbour: 24 entries on the left versus 4 on the right.",
+        evidence=["sig-channel_entries-HAR-left-p1", "sig-channel_entries-HAR-right-p1"],
+    )
+    assert check_point(within_team, state.signals, "p", names) == []

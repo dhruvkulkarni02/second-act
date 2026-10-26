@@ -25,7 +25,10 @@ from second_act.agents.verifier import Issue
 from second_act.orchestration.agent_log import AgentLog, usage_fields
 
 MAX_RETRIES = 2
-SUPPORT_CHECK_ESTIMATE_S = 8.0
+# A stalled model request must not hold the stream: a draft gets at most the time budget
+# (never less than the floor), a support check at most SUPPORT_TIMEOUT_S.
+DRAFT_TIMEOUT_FLOOR_S = 20.0
+SUPPORT_TIMEOUT_S = 15.0
 
 
 class WritingTask(Protocol):
@@ -134,7 +137,10 @@ class WriterExecutor(Executor):
     async def _one(self, attempt: int, index: int, feedback, previous) -> tuple[Candidate, float]:
         log, agent = self.run.log, self.run.task.writer
         try:
-            result = await self.drafter.draft(self.run.state, feedback, previous)
+            result = await asyncio.wait_for(
+                self.drafter.draft(self.run.state, feedback, previous),
+                timeout=max(DRAFT_TIMEOUT_FLOOR_S, self.run.budget_s),
+            )
         except Exception as exc:  # model or parsing failure counts as a failed draft
             reasons = getattr(exc, "reasons", None) or [f"{type(exc).__name__}: {exc}"[:500]]
             latency = getattr(exc, "latency_s", None) or 0.0
@@ -207,7 +213,9 @@ class VerifierExecutor(Executor):
         log = self.run.log
         assert self.supporter is not None
         try:
-            issues, info = await self.supporter.check(self.run.task.claims(draft))
+            issues, info = await asyncio.wait_for(
+                self.supporter.check(self.run.task.claims(draft)), timeout=SUPPORT_TIMEOUT_S
+            )
         except Exception as exc:  # the deterministic layer already passed; do not block on it
             log.record(
                 "verifier",
@@ -230,50 +238,13 @@ class VerifierExecutor(Executor):
         )
         return issues
 
-    async def _repair(self, message, drafts, issues, layers) -> Any | None:
-        """Drop the failing claims instead of the whole draft, when the rest still stands.
-
-        Candidates rejected by the model check are pruned and accepted directly: their other
-        claims were already judged supported. Candidates rejected by the deterministic layer
-        are pruned and then model-checked, if the budget still allows a support check.
-        """
-        task, log = self.run.task, self.run.log
-        order = sorted(range(len(drafts)), key=lambda i: (layers[i] != "model", len(issues[i])))
-        for i in order:
-            if drafts[i] is None:
-                continue
-            result = task.prune(drafts[i], issues[i])
-            if result is None or task.check(result[0]):
-                continue
-            pruned, removed = result
-            if layers[i] != "model" and self.supporter is not None:
-                if self.run.elapsed() + SUPPORT_CHECK_ESTIMATE_S > self.run.budget_s:
-                    continue
-                found = await self._support(pruned, message.attempt, i)
-                if found:
-                    second = task.prune(pruned, found)
-                    if second is None or task.check(second[0]):
-                        continue
-                    pruned, removed = second[0], removed + second[1]
-            log.record(
-                "verifier",
-                "pruned",
-                task=task.name,
-                attempt=message.attempt,
-                candidate=i,
-                removed=removed,
-            )
-            return task.finalize(
-                pruned, message.candidates[i].source, self.run.drafts_written, None, removed
-            )
-        return None
-
     @handler
     async def verify(
         self, message: DraftMessage, ctx: WorkflowContext[RejectionMessage | FallbackMessage, Any]
     ) -> None:
-        """Deterministic checks on every candidate, then the model support check (in parallel)
-        on those that pass; the first fully verified candidate wins."""
+        """Deterministic checks on every candidate; claims that fail them are pruned first;
+        then one model support check (in parallel) on every candidate still standing.
+        Claims the model check rejects are pruned too. The first clean candidate wins."""
         task, log = self.run.task, self.run.log
         drafts = [
             task.normalize(c.draft) if c.draft is not None else None for c in message.candidates
@@ -283,12 +254,32 @@ class VerifierExecutor(Executor):
             for c, d in zip(message.candidates, drafts, strict=True)
         ]
         layers = ["error" if d is None else "deterministic" for d in drafts]
-        passed = [i for i, found in enumerate(issues) if not found]
-        if passed and self.supporter is not None:
+        removed: list[list[str]] = [[] for _ in drafts]
+        # Repair deterministic failures before the support check, so a draft with one bad
+        # claim costs no extra model round.
+        for i, draft in enumerate(drafts):
+            if draft is None or not issues[i]:
+                continue
+            result = task.prune(draft, issues[i])
+            if result is not None and not task.check(result[0]):
+                log.record(
+                    "verifier",
+                    "verdict",
+                    task=task.name,
+                    attempt=message.attempt,
+                    candidate=i,
+                    ok=False,
+                    layer="deterministic",
+                    issues=[str(x) for x in issues[i]],
+                    repaired=True,
+                )
+                drafts[i], removed[i], issues[i] = result[0], result[1], []
+        standing = [i for i, found in enumerate(issues) if not found]
+        if standing and self.supporter is not None:
             checks = await asyncio.gather(
-                *(self._support(drafts[i], message.attempt, i) for i in passed)
+                *(self._support(drafts[i], message.attempt, i) for i in standing)
             )
-            for i, found in zip(passed, checks, strict=True):
+            for i, found in zip(standing, checks, strict=True):
                 issues[i], layers[i] = found, "model"
         for i, found in enumerate(issues):
             log.record(
@@ -301,22 +292,53 @@ class VerifierExecutor(Executor):
                 layer=layers[i],
                 issues=[str(x) for x in found],
             )
-        winner = next((i for i, found in enumerate(issues) if not found), None)
-        if winner is not None:
+        clean = [i for i, found in enumerate(issues) if not found]
+        if clean:
+            winner = min(clean, key=lambda i: len(removed[i]))
+            if removed[winner]:
+                log.record(
+                    "verifier",
+                    "pruned",
+                    task=task.name,
+                    attempt=message.attempt,
+                    candidate=winner,
+                    removed=removed[winner],
+                )
             await ctx.yield_output(
                 task.finalize(
                     drafts[winner],
                     message.candidates[winner].source,
                     self.run.drafts_written,
                     None,
-                    [],
+                    removed[winner],
                 )
             )
             return
-        repaired = await self._repair(message, drafts, issues, layers)
-        if repaired is not None:
-            await ctx.yield_output(repaired)
-            return
+        # Claims the model check rejected: drop them; the rest were judged supported.
+        for i in sorted(
+            (i for i in range(len(drafts)) if layers[i] == "model"), key=lambda i: len(issues[i])
+        ):
+            result = task.prune(drafts[i], issues[i])
+            if result is not None and not task.check(result[0]):
+                pruned_away = removed[i] + result[1]
+                log.record(
+                    "verifier",
+                    "pruned",
+                    task=task.name,
+                    attempt=message.attempt,
+                    candidate=i,
+                    removed=pruned_away,
+                )
+                await ctx.yield_output(
+                    task.finalize(
+                        result[0],
+                        message.candidates[i].source,
+                        self.run.drafts_written,
+                        None,
+                        pruned_away,
+                    )
+                )
+                return
         # Predictive budget: retry only if another round like the last one still fits.
         out_of_time = self.run.elapsed() + self.run.last_draft_s > self.run.budget_s
         if message.attempt > MAX_RETRIES or out_of_time:
