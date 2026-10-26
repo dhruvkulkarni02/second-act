@@ -13,7 +13,9 @@ from second_act.api.app import create_app
 def test_offline_session_streams_to_the_end() -> None:
     with TestClient(create_app()) as client:
         assert client.get("/api/health").json()["status"] == "ok"
-        assert [m["match_id"] for m in client.get("/api/matches").json()] == [
+        listing = client.get("/api/matches").json()
+        assert listing[1]["home_name"] == "Kestrel" and listing[1]["home_colour"].startswith("#")
+        assert [m["match_id"] for m in listing] == [
             "m-001",
             "m-002",
             "m-003",

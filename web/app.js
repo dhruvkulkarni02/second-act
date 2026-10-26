@@ -554,8 +554,10 @@
     const m = state.matchList.find((x) => x.match_id === prefs.match);
     if (!m) return;
     const [home, away] = m.title.replace(/\s*\(.*\)\s*$/, "").split(" v ");
-    $("home-name").textContent = (home || m.home).split(" ")[0];
-    $("away-name").textContent = (away || m.away).split(" ")[0];
+    $("home-name").textContent = m.home_name || (home || m.home).split(" ")[0];
+    $("away-name").textContent = m.away_name || (away || m.away).split(" ")[0];
+    if (m.home_colour) document.documentElement.style.setProperty("--home", m.home_colour);
+    if (m.away_colour) document.documentElement.style.setProperty("--away", m.away_colour);
   }
 
   function bindControls() {

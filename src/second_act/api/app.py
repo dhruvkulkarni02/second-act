@@ -191,7 +191,15 @@ def create_app() -> FastAPI:
     @app.get("/api/matches")
     async def matches() -> list[dict]:
         index = DATA_DIR / "index.json"
-        return json.loads(index.read_text()) if index.exists() else []
+        entries = json.loads(index.read_text()) if index.exists() else []
+        for entry in entries:  # short names and colours for the pre-kickoff scoreboard
+            meta_path = DATA_DIR / entry["match_id"] / "metadata.json"
+            if meta_path.exists():
+                meta = read_metadata(meta_path)
+                for side, team in (("home", meta.home), ("away", meta.away)):
+                    entry[f"{side}_name"] = team.short_name
+                    entry[f"{side}_colour"] = team.primary_colour
+        return entries
 
     @app.post("/api/sessions")
     async def start(request: SessionRequest) -> dict:
