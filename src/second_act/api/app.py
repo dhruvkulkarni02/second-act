@@ -41,7 +41,9 @@ DATA_DIR = Path(os.environ.get("SECOND_ACT_DATA_DIR", "data"))
 WEB_DIR = Path(os.environ.get("SECOND_ACT_WEB_DIR", "web"))
 MAX_SESSIONS = int(os.environ.get("SECOND_ACT_MAX_SESSIONS", 20))
 SESSION_TTL_S = float(os.environ.get("SECOND_ACT_SESSION_TTL_S", 3600))
-HALFTIME_HOLD_S = float(os.environ.get("SECOND_ACT_HALFTIME_HOLD_S", 15))
+# The replay waits at half-time until the viewer clicks Continue. The cap only stops an
+# abandoned tab from holding its session open.
+HALFTIME_HOLD_S = float(os.environ.get("SECOND_ACT_HALFTIME_HOLD_S", 600))
 
 
 class SessionRequest(BaseModel):
@@ -77,7 +79,7 @@ class Session:
     task: asyncio.Task | None = None
 
     async def hold(self, phase: str) -> None:
-        """Pause at half-time so viewers can read the briefing (until resumed or timeout)."""
+        """Pause at half-time until the viewer resumes (capped at HALFTIME_HOLD_S)."""
         if HALFTIME_HOLD_S <= 0:
             return
         await self.emit("status", {"phase": phase, "hold_s": HALFTIME_HOLD_S})

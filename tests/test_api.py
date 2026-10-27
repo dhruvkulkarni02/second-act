@@ -2,12 +2,15 @@
 
 from __future__ import annotations
 
+import asyncio
 import json
 import re
 
+import pytest
 from fastapi.testclient import TestClient
 
-from second_act.api.app import create_app
+from second_act.api import app as api
+from second_act.api.app import Session, create_app
 
 
 def test_offline_session_streams_to_the_end() -> None:
@@ -54,3 +57,18 @@ def test_index_fingerprints_assets_and_is_not_cached() -> None:
         assert response.headers["cache-control"] == "no-cache"
         assert re.search(r'/static/styles\.css\?v=[0-9a-f]{10}"', response.text)
         assert re.search(r'/static/app\.js\?v=[0-9a-f]{10}"', response.text)
+
+
+def test_halftime_hold_waits_for_continue(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(api, "HALFTIME_HOLD_S", 600.0)
+
+    async def run() -> None:
+        session = Session("s", "m-001", 60.0, True)
+        hold = asyncio.create_task(session.hold("halftime"))
+        await asyncio.sleep(0.2)
+        assert not hold.done()
+        assert session.history[-1] == ("status", {"phase": "halftime", "hold_s": 600.0})
+        session.resume.set()
+        await asyncio.wait_for(hold, timeout=1)
+
+    asyncio.run(run())
