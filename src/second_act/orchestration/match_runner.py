@@ -177,14 +177,14 @@ class MatchRunner:
             state.predictions, changes = await self.watcher.check(
                 state.predictions, signals, self.meta, minute, final
             )
+            if changes or final:
+                await self._emit_predictions()
             for change in changes:
                 state.prediction_notes[change.prediction.prediction_id] = (
                     change.explanation,
                     change.evaluation.evidence,
                 )
                 await self._emit_cues(await self.presenter.prediction(change, minute))
-            if changes or final:
-                await self._emit_predictions()
 
     async def _cached_variants(self, kind: str, model, make):
         """Presenter variants, reused from the cache for an identical online run."""

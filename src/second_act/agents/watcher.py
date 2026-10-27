@@ -18,6 +18,7 @@ deterministic number check or the template sentence is used instead.
 
 from __future__ import annotations
 
+import asyncio
 import time
 from dataclasses import dataclass
 from typing import Protocol
@@ -300,7 +301,7 @@ class Watcher:
     ) -> tuple[list[Prediction], list[PredictionCheck]]:
         """Return the updated predictions and the status changes to announce."""
         updated: list[Prediction] = []
-        changes: list[PredictionCheck] = []
+        decided: list[tuple[Prediction, Evaluation, PredictionStatus]] = []
         for pred in predictions:
             ev = evaluate(pred, signals, minute, final)
             if ev is None:
@@ -310,9 +311,14 @@ class Watcher:
             new = pred.model_copy(update={"status": status})
             updated.append(new)
             if status is not pred.status and status is not PredictionStatus.OPEN:
-                ev = Evaluation(**{**ev.__dict__, "status": status})
-                text, source = await self._explain(new, ev, meta)
-                changes.append(PredictionCheck(new, ev, text, source, pred.status))
+                decided.append((new, Evaluation(**{**ev.__dict__, "status": status}), pred.status))
+        # Several verdicts often land at the same check: explain them in parallel, so the
+        # cues reach the screen together instead of one model call after another.
+        explained = await asyncio.gather(*(self._explain(new, ev, meta) for new, ev, _ in decided))
+        changes = [
+            PredictionCheck(new, ev, text, source, before)
+            for (new, ev, before), (text, source) in zip(decided, explained, strict=True)
+        ]
         return updated, changes
 
     async def _explain(self, pred: Prediction, ev: Evaluation, meta: MatchMetadata):
