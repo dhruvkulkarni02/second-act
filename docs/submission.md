@@ -9,7 +9,7 @@ Challenge: **The Synthetic Match Insights Engine for Premier League Studio** (Mi
 - **Keywords:** multi-agent, Microsoft Agent Framework, Microsoft Foundry, grounding, verification, synthetic data, football analytics, broadcast graphics, Azure Container Apps, explainable AI
 - **Live demo:** https://second-act.bluecliff-fc92b3c6.swedencentral.azurecontainerapps.io
 - **Repository:** https://github.com/dhruvkulkarni02/second-act
-- **Video:** _(add your YouTube or Vimeo link)_
+- **Video:** https://youtu.be/4EDuElALqFs
 
 ## Short description (about 50 words)
 

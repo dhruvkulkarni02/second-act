@@ -2,7 +2,7 @@
 
 **A half-time tactical read that checks itself.**
 
-**Live demo:** https://second-act.bluecliff-fc92b3c6.swedencentral.azurecontainerapps.io · **Video:** _(link)_ · Built for the Microsoft × Premier League *Inside the Game* hackathon, challenge "The Synthetic Match Insights Engine for Premier League Studio".
+**Live demo:** https://second-act.bluecliff-fc92b3c6.swedencentral.azurecontainerapps.io · **Video:** https://youtu.be/4EDuElALqFs · Built for the Microsoft × Premier League *Inside the Game* hackathon, challenge "The Synthetic Match Insights Engine for Premier League Studio".
 
 Second Act is a multi-agent system that turns a live stream of synthetic football events into explainable match intelligence for studio and streaming.
 
